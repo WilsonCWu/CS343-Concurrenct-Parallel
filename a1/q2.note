@@ -1,0 +1,12 @@
+oldbuf = *buf;
+jmpbuf newbuf;
+buf = &newbuf;
+
+if (setjmp(buf)) {
+	// CATCH block
+	buf = oldbuf; longjmp(buf, 2); // THROW in TRY/CATCH
+	buf = oldbuf;
+} else {
+	// TRY block
+	buf = oldbuf;
+}

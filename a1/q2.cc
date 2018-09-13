@@ -3,6 +3,7 @@
 #include <cstring>                                      // access: strcmp
 using namespace std;
 #include <unistd.h>                                     // access: getpid
+#include <setjmp.h>                                     // access: setjmp, longjmp
 
 #ifdef NOOUTPUT
 #define PRT( stmt )
@@ -10,27 +11,45 @@ using namespace std;
 #define PRT( stmt ) stmt
 #endif // NOOUTPUT
 
+static jmp_buf *buf;
 struct E {};                                            // exception type
 PRT( struct T { ~T() { cout << "~"; } }; )
 long int eperiod = 100, excepts = 0, calls = 0;        // exception period
 
 long int Ackermann( long int m, long int n ) {
 	calls += 1;
+	jmp_buf *oldbuf = buf;
+	jmp_buf newbuf;
+	buf = &newbuf;
 	if ( m == 0 ) {
-		if ( rand() % eperiod == 0 ) { PRT( T t; ) excepts += 1; throw E(); }
+		if ( rand() % eperiod == 0 ) {
+			PRT( T t; ) excepts += 1;
+			buf = oldbuf;
+			longjmp(*buf, 1); // throw E();
+		}
 		return n + 1;
 	} else if ( n == 0 ) {
-		try {
-			return Ackermann( m - 1, 1 );
-		} catch( E ) {
+		if (setjmp(*buf) == 0) { // try
+			long int res = Ackermann( m - 1, 1 );
+			buf = oldbuf;
+			return res;
+		} else { // catch( E )
 			PRT( cout << "E1 " << m << " " << n << endl );
-			if ( rand() % eperiod == 0 ) { PRT( T t; ) excepts += 1; throw E(); }
+			if ( rand() % eperiod == 0 ) {
+				PRT( T t; ) excepts += 1;
+				buf = oldbuf;
+				longjmp(*buf, 1); // throw E();
+			}
+			buf = oldbuf;
 		} // try
 	} else {
-		try {
-			return Ackermann( m - 1, Ackermann( m, n - 1 ) );
-		} catch( E ) {
+		if (setjmp(*buf) == 0) { // try
+			long int res = Ackermann( m - 1, Ackermann( m, n - 1 ) );
+			buf = oldbuf;
+			return res;
+		} else { //catch( E )
 			PRT( cout << "E2 " << m << " " << n << endl );
+			buf = oldbuf;
 		} // try
 	} // if
 	return 0;                                           // recover by returning 0
@@ -60,11 +79,13 @@ int main( int argc, char * argv[] ) {
 		exit( EXIT_FAILURE );
 	} // try
 	srand( seed );                                      // seed random number
-	try {                                               // begin program
+	jmp_buf jbuf;
+	buf = &jbuf;
+	if (setjmp(*buf) == 0) { // try                     // begin program
 		PRT( cout << m << " " << n << " " << seed << " " << eperiod << endl );
 		long int val = Ackermann( m, n );
 		PRT( cout << val << endl );
-	} catch( E ) {
+	} else { // catch( E )
 		PRT( cout << "E3" << endl );
 	} // try
 	cout << "calls " << calls << ' ' << " exceptions " << excepts << endl;
