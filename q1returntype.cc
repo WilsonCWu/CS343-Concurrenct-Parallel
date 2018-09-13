@@ -1,42 +1,68 @@
 #include <iostream>
+#include <variant>
 #include <cstdlib>                                      // access: rand, srand
 #include <cstring>                                      // access: strcmp
 using namespace std;
 #include <unistd.h>                                     // access: getpid
 
-int err = 0;
-struct Er1 { short int code; };
-struct Er2 { int code; };
-struct Er3 { long int code; };
-struct Er1 er1;
-struct Er2 er2;
-struct Er3 er3;
+class Er {
+	int err;
+	public:
+	Er ( int err ): err( err ) {}
+	int geterr() { return err; }
+	virtual ~Er() = 0;
+};
+
+Er::~Er(){};
+
+class Er1: public Er {
+	short int code;
+	public:
+	Er1 ( short int code ) : Er( 1 ), code( code ) {}
+	short int getCode() { return code; }
+};
+
+class Er2: public Er {
+	int code;
+	public:
+	Er2 ( int code ) : Er( 2 ), code( code ) {}
+	int getCode() { return code; }
+};
+
+class Er3: public Er {
+	long int code;
+	public:
+	Er3 ( long int code ) : Er( 3 ), code( code ) {}
+	long int getCode() { return code; }
+};
 
 int eperiod = 10000;                                    // error period
 
-double rtn1( double i ) {
+variant<double, Er *> rtn1( double i ) {
 	if ( rand() % eperiod == 0 ) {
-		err = 1;
-		er1 = Er1{ (short int)rand() };
-		return 0;
-	} // if
+		return new Er1{ (short int)rand() };
+	}
 	return i;
 }
-double rtn2( double i  ) {
+variant<double, Er *> rtn2( double i  ) {
 	if ( rand() % eperiod == 0 ) {
-		err = 2;
-		er2 = Er2{ rand() };
-		return 0;
-	} // if
-	return rtn1( i ) + i;
+		return new Er2{ rand() };
+	}
+	variant<double, Er *>ret = rtn1( i );
+	if ( holds_alternative<double>( ret ) ) {
+		return get<double>( ret ) + i;
+	}
+	return get<Er *>( ret );
 }
-double rtn3( double i  ) {
+variant<double, Er *> rtn3( double i  ) {
 	if ( rand() % eperiod == 0 ) {
-		err = 3;
-		er3 = Er3{ rand() };
-		return 0;
-	} // if
-	return rtn2( i ) + i;
+		return new Er3{ rand() };
+	}
+	variant<double, Er *>ret = rtn2( i );
+	if ( holds_alternative<double>( ret ) ) {
+		return get<double>( ret ) + i;
+	}
+	return get<Er *>( ret );
 }
 int main( int argc, char * argv[] ) {
 	int times = 100000000, seed = getpid();             // default values
@@ -65,24 +91,31 @@ int main( int argc, char * argv[] ) {
 	int rc = 0, ec1 = 0, ec2 = 0, ec3 = 0;
 
 	for ( int i = 0; i < times; i += 1 ) {
-		err = 0;
-		int temp = rtn3( i );
-		switch ( err ) {
-			case 3:
-				ev3 += er3.code;
+		variant<double, Er *>ret = rtn3( i );
+		if ( holds_alternative<double>( ret ) ) {
+			rv += get<double>( ret );
+			rc += 1;
+			continue;
+		}
+		switch ( get<Er *>( ret )->geterr() ) {
+			case 3: {
+				Er3 *er3 = dynamic_cast<Er3 *>( get<Er *>( ret ) );
+				ev3 += er3->getCode();
 				ec3 += 1;
 				break;
-			case 2:
-				ev2 += er2.code;
+			}
+			case 2: {
+				Er2 *er2 = dynamic_cast<Er2 *>( get<Er *>( ret ) );
+				ev2 += er2->getCode();
 				ec2 += 1;
 				break;
-			case 1:
-				ev1 += er1.code;
+			}
+			case 1: {
+				Er1 *er1 = dynamic_cast<Er1 *>( get<Er *>( ret ) );
+				ev1 += er1->getCode();
 				ec1 += 1;
 				break;
-			default:
-				rv += temp;
-				rc += 1;
+			}
 		}
 	} // for
 	cout << "normal result " << rv << " exception results " << ev1 << ' ' << ev2 << ' ' << ev3 << endl;
