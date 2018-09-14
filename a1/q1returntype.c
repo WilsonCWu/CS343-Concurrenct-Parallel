@@ -4,23 +4,58 @@
 using namespace std;
 #include <unistd.h>                                     // access: getpid
 
-struct Er1 { short int code; };
-struct Er2 { int code; };
-struct Er3 { long int code; };
+typedef struct _Er1 { short int code; } Er1;
+typedef struct _Er2 { int code; } Er2;
+typedef struct _Er3 { long int code; } Er3;
+
+// typedef struct name {} ActualName
+typedef union _ReturnValue {
+	double ret;
+	Er1 er1;
+	Er2 er2;
+	Er3 er3;
+} ReturnValue;
+
+typedef struct _ReturnObject {
+	int type; // 0: normal, X: ErX
+	ReturnValue rv;
+} ReturnObject;
 
 int eperiod = 10000;                                    // error period
 
-double rtn1( double i ) {
-    if ( rand() % eperiod == 0 ) throw Er1{ (short int)rand() };
-    return i;
+ReturnObject rtn1( double i ) {
+    if ( rand() % eperiod == 0 ) {
+		Er1 er1 = { (short int)rand() };
+		ReturnValue rv;
+		rv.er1 = er1;
+		ReturnObject ro = { 1, rv };
+		return ro;
+	}
+    return { .type = 0, .rv = { .ret = i } };
 }
-double rtn2( double i  ) {
-    if ( rand() % eperiod == 0 ) throw Er2{ rand() };
-    return rtn1( i ) + i;
+ReturnObject rtn2( double i  ) {
+    if ( rand() % eperiod == 0 ) {
+		Er2 er2 = { rand() };
+		ReturnValue rv;
+		rv.er2 = er2;
+		ReturnObject ro = { 2, rv };
+		return ro;
+	}
+	ReturnObject ret = rtn1( i );
+	if (ret.type) return ret;
+    return { .type = 0, .rv = { .ret = ret.rv.ret + i } };
 }
-double rtn3( double i  ) {
-    if ( rand() % eperiod == 0 ) throw Er3{ rand() };
-    return rtn2( i ) + i;
+ReturnObject rtn3( double i  ) {
+    if ( rand() % eperiod == 0 ) {
+		Er3 er3 = { rand() };
+		ReturnValue rv;
+		rv.er3 = er3;
+		ReturnObject ro = { 3, rv };
+		return ro;
+	}
+	ReturnObject ret = rtn2( i );
+	if (ret.type) return ret;
+    return { .type = 0, .rv = { .ret = ret.rv.ret + i } };
 }
 int main( int argc, char * argv[] ) {
     int times = 100000000, seed = getpid();             // default values
@@ -49,11 +84,24 @@ int main( int argc, char * argv[] ) {
     int rc = 0, ec1 = 0, ec2 = 0, ec3 = 0;
 
     for ( int i = 0; i < times; i += 1 ) {
-        try { rv += rtn3( i ); rc += 1; }
-        // analyse error
-        catch( Er1 ev ) { ev1 += ev.code; ec1 += 1; }
-        catch( Er2 ev ) { ev2 += ev.code; ec2 += 1; }
-        catch( Er3 ev ) { ev3 += ev.code; ec3 += 1; }
+		ReturnObject ret = rtn3( i );
+		switch ( ret.type ) {
+			case 3:
+				ev3 += ret.rv.er3.code;
+				ec3 += 1;
+				break;
+			case 2:
+				ev2 += ret.rv.er2.code;
+				ec2 += 1;
+				break;
+			case 1:
+				ev1 += ret.rv.er1.code;
+				ec1 += 1;
+				break;
+			default:
+				rv += ret.rv.ret;
+				rc += 1;
+		}
     } // for
     cout << "normal result " << rv << " exception results " << ev1 << ' ' << ev2 << ' ' << ev3 << endl;
     cout << "calls "  << rc << " exceptions " << ec1 << ' ' << ec2 << ' ' << ec3 << endl;
