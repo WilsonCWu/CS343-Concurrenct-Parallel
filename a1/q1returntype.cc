@@ -102,18 +102,21 @@ int main( int argc, char * argv[] ) {
 				Er3 *er3 = dynamic_cast<Er3 *>( get<Er *>( ret ) );
 				ev3 += er3->getCode();
 				ec3 += 1;
+				delete er3;
 				break;
 			}
 			case 2: {
 				Er2 *er2 = dynamic_cast<Er2 *>( get<Er *>( ret ) );
 				ev2 += er2->getCode();
 				ec2 += 1;
+				delete er2;
 				break;
 			}
 			case 1: {
 				Er1 *er1 = dynamic_cast<Er1 *>( get<Er *>( ret ) );
 				ev1 += er1->getCode();
 				ec1 += 1;
+				delete er1;
 				break;
 			}
 		}

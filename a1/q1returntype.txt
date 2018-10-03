@@ -1,0 +1,89 @@
+b)
+i.
+#################### NORMAL #####################
+j585zhan@ubuntu1604-004:~/cs343/a1$ /usr/bin/time -f "%Uu %Ss %E" ./q1 100000000 10000 1003
+6.55u 0.00s 0:06.55
+
+j585zhan@ubuntu1604-004:~/cs343/a1$ /usr/bin/time -f "%Uu %Ss %E" ./returnglobal 100000000 10000 1003
+5.36u 0.00s 0:05.37
+
+j585zhan@ubuntu1604-004:~/cs343/a1$ /usr/bin/time -f "%Uu %Ss %E" ./returntype 100000000 10000 1003
+30.75u 0.00s 0:30.680
+
+j585zhan@ubuntu1604-004:~/cs343/a1$ /usr/bin/time -f "%Uu %Ss %E" ./returntypec 100000000 10000 1003
+4.84u 0.00s 0:04.84
+
+##################### -O2 #######################
+j585zhan@ubuntu1604-004:~/cs343/a1$ /usr/bin/time -f "%Uu %Ss %E" ./q1 100000000 10000 1003
+4.12u 0.00s 0:04.13
+
+j585zhan@ubuntu1604-004:~/cs343/a1$ /usr/bin/time -f "%Uu %Ss %E" ./returnglobal 100000000 10000 1003
+4.47u 0.00s 0:04.47
+
+j585zhan@ubuntu1604-004:~/cs343/a1$ /usr/bin/time -f "%Uu %Ss %E" ./returntype 100000000 10000 1003
+5.63u 0.00s 0:05.65
+
+j585zhan@ubuntu1604-004:~/cs343/a1$ /usr/bin/time -f "%Uu %Ss %E" ./returntypec 100000000 10000 1003
+4.32u 0.00s 0:04.32
+
+ii.
+The performance is small different (smaller than 1.5s) between return global and q1.
+The reason of that is due to return global does not have multi level exit.
+
+The performance is large different (larger than 10s) between return type and q1.
+The reason of that is due to return by type need to interprete what type does current variant
+hold, it consist with castings and object construction/destruction.
+
+The performance is small different (smaller than 2s) between return type c and q1.
+The reason of that is due to union is not self-recognizable. It works similar as the return global.
+The tag is used to recognize what the current type is. And since there is no multi level exit,
+it is a bit slower.
+
+iii.
+The performance between four program are little different,
+differences are smaller than 1.6s
+
+c)
+i.
+j585zhan@ubuntu1604-002:~/cs343/a1$ /usr/bin/time -f "%Uu %Ss %E" ./q1 100000000 1000 1003
+4.32u 0.00s 0:04.33
+
+j585zhan@ubuntu1604-002:~/cs343/a1$ /usr/bin/time -f "%Uu %Ss %E" ./q1 100000000 100 1003
+10.81u 0.00s 0:10.81
+
+j585zhan@ubuntu1604-002:~/cs343/a1$ /usr/bin/time -f "%Uu %Ss %E" ./q1 100000000 50 1003
+25.38u 0.00s 0:25.38
+
+j585zhan@ubuntu1604-002:~/cs343/a1$ /usr/bin/time -f "%Uu %Ss %E" ./returnglobal 100000000 1000 1003
+3.76u 0.00s 0:03.76
+
+j585zhan@ubuntu1604-002:~/cs343/a1$ /usr/bin/time -f "%Uu %Ss %E" ./returnglobal 100000000 100 1003
+4.69u 0.00s 0:04.70
+
+j585zhan@ubuntu1604-002:~/cs343/a1$ /usr/bin/time -f "%Uu %Ss %E" ./returnglobal 100000000 50 1003
+5.30u 0.00s 0:05.31
+
+j585zhan@ubuntu1604-002:~/cs343/a1$ /usr/bin/time -f "%Uu %Ss %E" ./returntype 100000000 1000 1003
+6.48u 0.00s 0:06.50
+
+j585zhan@ubuntu1604-002:~/cs343/a1$ /usr/bin/time -f "%Uu %Ss %E" ./returntype 100000000 100 1003
+5.30u 0.00s 0:05.30
+
+j585zhan@ubuntu1604-002:~/cs343/a1$ /usr/bin/time -f "%Uu %Ss %E" ./returntype 100000000 50 1003
+7.51u 0.00s 0:07.51
+
+j585zhan@ubuntu1604-002:~/cs343/a1$ /usr/bin/time -f "%Uu %Ss %E" ./returntypec 100000000 1000 1003
+5.06u 0.00s 0:05.07
+
+j585zhan@ubuntu1604-002:~/cs343/a1$ /usr/bin/time -f "%Uu %Ss %E" ./returntypec 100000000 100 1003
+4.60u 0.00s 0:04.62
+
+j585zhan@ubuntu1604-002:~/cs343/a1$ /usr/bin/time -f "%Uu %Ss %E" ./returntypec 100000000 50 1003
+5.00u 0.00s 0:05.00
+
+ii.
+As the error period decreasing, the performance are increasing large (6 to 15 seconds)
+for the original program and small (less than 2 second) for the transformed program.
+This difference might due to the error period shorter, the exception handling frequency
+increased, and consumes more time. However other three method, the way to return is similar
+between error return and normal return, so the time difference is not to large.

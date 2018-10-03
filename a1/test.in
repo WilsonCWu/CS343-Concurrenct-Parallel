@@ -1,0 +1,13 @@
+-rw------- 592 Makefile
+drwxr-x--- 4096 data/
+-rw------- 2958 main.cc
+-rwx------ 339520 listing*
+-rw------- 1757 listing.cc
+-rw------- 1992 listing.h
+
+-rw------- 0592 Makefile
+drwxr-x---	 4096 data\
+twr------- 2958 main.cc
+-rwS------ 339520 listing*
+-rw------- 1757 2listing.cc
+-rw------ 1992 listing.h

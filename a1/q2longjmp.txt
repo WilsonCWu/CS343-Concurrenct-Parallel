@@ -1,0 +1,37 @@
+i) The out put is different because the exception handler will invokes the
+destructors and cleanup all stack objects. However setjmp/longjmp will
+not.
+
+ii)
+=================NO OPTIMIZED====================
+############### longjmp/setjmp ##################
+j585zhan@ubuntu1604-004:~/cs343/a1$ /usr/bin/time -f "%Uu %Ss %E" ./a.out 11 11 103 13
+calls 167521755  exceptions 5714733
+3.36u 0.00s 0:03.36
+
+############### original code ###################
+j585zhan@ubuntu1604-004:~/cs343/a1$ /usr/bin/time -f "%Uu %Ss %E" ./a.out 11 11 103 13
+calls 167521755  exceptions 5714733
+14.75u 0.00s 0:14.76
+
+======================OPTIMIZED==================
+############### longjmp/setjmp ##################
+j585zhan@ubuntu1604-004:~/cs343/a1$ /usr/bin/time -f "%Uu %Ss %E" ./a.out 11 11 103 13
+calls 167521755  exceptions 5714733
+3.81u 0.00s 0:03.81
+
+############### original code ###################
+j585zhan@ubuntu1604-004:~/cs343/a1$ /usr/bin/time -f "%Uu %Ss %E" ./a.out 11 11 103 13
+calls 167521755  exceptions 5714733
+24.00u 0.00s 0:24.02
+
+iii)
+There is a large difference between original code and setjmp/longjmp code.
+Original code takes approximately five times slower than setjmp/longjmp. This
+is probably due to the exception handler will clean up the stack variables, 
+invoking destructors, and unwinding the stack frame. However setjmp/longjmp
+is just a control flow and has nothing todo with stack cleanup.
+
+iv)
+There is still a large difference between original code and setjmp/longjmp code.
+The original code is about 9 times slower than setjmp/longjmp

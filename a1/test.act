@@ -1,0 +1,13 @@
+'-rw------- 592 Makefile' : '-rw------- 592 Makefile' yes
+'drwxr-x--- 4096 data/' : 'drwxr-x--- 4096 data/' yes
+'-rw------- 2958 main.cc' : '-rw------- 2958 main.cc' yes
+'-rwx------ 339520 listing*' : '-rwx------ 339520 listing*' yes
+'-rw------- 1757 listing.cc' : '-rw------- 1757 listing.cc' yes
+'-rw------- 1992 listing.h' : '-rw------- 1992 listing.h' yes
+'' : Warning! Blank line.
+'-rw------- 0592 Makefile' : '-rw------- 05' no, extraneous characters '92 Makefile'
+'drwxr-x---	 4096 data\' : 'drwxr-x---	 4096 data\' no
+'twr------- 2958 main.cc' : 't' no, extraneous characters 'wr------- 2958 main.cc'
+'-rwS------ 339520 listing*' : '-rwS' no, extraneous characters '------ 339520 listing*'
+'-rw------- 1757 2listing.cc' : '-rw------- 1757 2' no, extraneous characters 'listing.cc'
+'-rw------ 1992 listing.h' : '-rw------ ' no, extraneous characters '1992 listing.h'
