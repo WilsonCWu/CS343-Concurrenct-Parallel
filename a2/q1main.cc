@@ -1,62 +1,7 @@
-template<typename T> _Coroutine Binsertsort {
-	T value;                        // communication: value being passed down/up the tree
-	void main() {
-		try { _Enable {} } catch (Sentinel &e) {
-			_Resume Sentinel {} _At resumer();
-			return;
-		}
-		T pivot = value;
-		Binsertsort<T>less;
-		Binsertsort<T>greater;
-		try {
-			_Enable {
-				while (true) {
-					suspend();
-					if (value < pivot) less.sort(value);
-					else greater.sort(value); // TODO: test this, equal case
-				}
-			}
-		} catch (Sentinel &e) {
-			_Resume Sentinel {} _At less;
-			try {
-				_Enable {
-					while (true) {
-						value = less.retrieve();
-						suspend();
-					}
-				}
-			} catch (Sentinel &e) {}
-			value = pivot;
-			suspend();
-			_Resume Sentinel {} _At greater;
-			try {
-				_Enable {
-					while (true) {
-						value = greater.retrieve();
-						suspend();
-					}
-				}
-			} catch (Sentinel &e) {}
-		} // read done
-
-		_Resume Sentinel {} _At resumer();
-		return ;
-	}
-	public:
-	_Event Sentinel {};
-	void sort( T value ) {          // value to be sorted
-		Binsertsort::value = value;
-		resume();
-	}
-	T retrieve() {                  // retrieve sorted value
-		resume();
-		return value;
-	}
-};
-
 #include <iostream>
 #include <sstream>
 #include <fstream>
+#include "q1binsertsort.h"
 
 using namespace std;
 

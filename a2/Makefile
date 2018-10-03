@@ -4,7 +4,7 @@ CXX = u++					# compiler
 CXXFLAGS = -g -Wall -Wextra -MMD -DTYPE="${TYPE}"
 MAKEFILE_NAME = ${firstword ${MAKEFILE_LIST}}	# makefile name
 
-OBJECTS1 = # object files forming 1st executable with prefix "q1"
+OBJECTS1 = q1main.o	# object files forming 1st executable with prefix "q1"
 EXEC1 = binsertsort
 
 OBJECTS2 = # object files forming 2st executable with prefix "q2"
