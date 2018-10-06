@@ -1,0 +1,70 @@
+9 players in the game
+  POTATO goes off after 7 tosses
+U 0 -> 8 -> 0 -> 8 -> 0 -> 8 -> 1 is eliminated
+  POTATO goes off after 6 tosses
+U 0 -> 8 -> 2 -> 3 -> 2 -> 8 is eliminated
+  POTATO goes off after 10 tosses
+U 0 -> 7 -> 6 -> 7 -> 6 -> 7 -> 0 -> 2 -> 0 -> 7 is eliminated
+  POTATO goes off after 6 tosses
+U 0 -> 6 -> 0 -> 2 -> 3 -> 2 is eliminated
+  POTATO goes off after 8 tosses
+U 0 -> 6 -> 5 -> 6 -> 5 -> 4 -> 3 -> 4 is eliminated
+  POTATO goes off after 9 tosses
+U 0 -> 3 -> 0 -> 6 -> 5 -> 6 -> 5 -> 3 -> 0 is eliminated
+E 0 -> 3 -> 5 -> 6 : umpire 6
+  POTATO goes off after 4 tosses
+U 6 -> 3 -> 5 -> 6 is eliminated
+E 6 -> 3 -> 5 : umpire 5
+  POTATO goes off after 2 tosses
+U 5 -> 3 is eliminated
+  POTATO goes off after 4 tosses
+U 5 wins the Match!
+
+
+9 players in the game
+  POTATO goes off after 5 tosses
+U 0 -> 8 -> 1 -> 2 -> 3 is eliminated
+  POTATO goes off after 5 tosses
+U 0 -> 7 -> 0 -> 7 -> 0 is eliminated
+E 0 -> 8 -> 1 -> 2 -> 4 -> 5 -> 6 -> 7 : umpire 8
+  POTATO goes off after 8 tosses
+U 8 -> 7 -> 8 -> 1 -> 2 -> 4 -> 2 -> 4 is eliminated
+  POTATO goes off after 9 tosses
+U 8 -> 1 -> 8 -> 1 -> 8 -> 7 -> 6 -> 7 -> 8 is eliminated
+E 8 -> 1 -> 2 -> 5 -> 6 -> 7 : umpire 7
+  POTATO goes off after 7 tosses
+U 7 -> 6 -> 7 -> 1 -> 7 -> 6 -> 7 is eliminated
+E 7 -> 1 -> 2 -> 5 -> 6 : umpire 6
+  POTATO goes off after 3 tosses
+U 6 -> 1 -> 2 is eliminated
+  POTATO goes off after 5 tosses
+U 6 -> 5 -> 1 -> 5 -> 1 is eliminated
+  POTATO goes off after 9 tosses
+U 6 -> 5 -> 6 -> 5 -> 6 -> 5 -> 6 -> 5 -> 6 is eliminated
+E 6 -> 5 : umpire 5
+  POTATO goes off after 10 tosses
+U 5 wins the Match!
+
+
+9 players in the game
+  POTATO goes off after 8 tosses
+U 0 -> 3 -> 0 -> 3 -> 0 -> 5 -> 6 -> 7 is eliminated
+  POTATO goes off after 6 tosses
+U 0 -> 5 -> 6 -> 8 -> 6 -> 5 is eliminated
+  POTATO goes off after 1 toss
+U 0 is eliminated
+E 0 -> 6 -> 8 -> 4 -> 1 -> 2 -> 3 : umpire 8
+  POTATO goes off after 6 tosses
+U 8 -> 4 -> 8 -> 4 -> 8 -> 6 is eliminated
+  POTATO goes off after 6 tosses
+U 8 -> 3 -> 8 -> 4 -> 1 -> 2 is eliminated
+  POTATO goes off after 9 tosses
+U 8 -> 3 -> 1 -> 4 -> 8 -> 3 -> 8 -> 3 -> 8 is eliminated
+E 8 -> 4 -> 1 -> 3 : umpire 4
+  POTATO goes off after 1 toss
+U 4 is eliminated
+E 4 -> 1 -> 3 : umpire 3
+  POTATO goes off after 6 tosses
+U 3 -> 1 -> 3 -> 1 -> 3 -> 1 is eliminated
+  POTATO goes off after 9 tosses
+U 3 wins the Match!

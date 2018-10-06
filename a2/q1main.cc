@@ -65,6 +65,8 @@ int main (int argc, char *argv[]) {
 			*out << endl;
 		}
 
+		cout << endl;
+
 	} // while
 
 	delete in;
