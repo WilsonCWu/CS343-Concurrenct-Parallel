@@ -1,0 +1,134 @@
+The program sorts a line of specific type of input to ascending order,
+by constructing a binnary tree view structure without balancing it. The
+first element in the line must be the length of elements of the line.
+
+USER INTERFACE TESTING
+	There is no user interface to be tested, so the testing focuses
+	solely on the algorithm used for the parsing.
+
+ALGORITHM TESTING
+
+	Test 1:
+	-------
+		DATA DESCRIPTION
+		The first test using the command line to pass the input file to
+		the profile. The contents of the file are:
+
+			1. 5 aaa a    123 1 #$%
+
+		Compile the program with flag -DTYPE=string.
+		The line checks if the program sort strings in lexicographical
+		order. The las part checks string formed by the special characters.
+		The spaces checks if program handles more than one space correctly.
+
+		TESTING
+		Here is the result of the output
+		1 j585zhan@ubuntu1604-002:~/cs343/a1$ cat test1.in
+		2 5 aaa a    123 1 #$%
+		3 j585zhan@ubuntu1604-002:~/cs343/a1$ ./binsertsort test1.in
+		4 aaa a 123 1 #$%
+		5 #$% 1 123 a aaa
+		6
+
+		ANALYSIS
+		The results from running the program on "test1.in" shows that:
+		1)	The number of element are read correctly.
+		2)	All whitespaces are handled in a proper way.
+		3)	Special characters string is sorted corectly in lexicographical order.
+		4)	strings formed by alphabet and digits are sorted lexicographically.
+		5)	There is a blank line after each line of input.
+
+	TEST 2:
+	-------
+		DATA DESCRIPTION
+		The first test using the command line to pass the input file to
+		the profile. The contents of the file are:
+
+			1. 0
+			2. 7 0 -2 3 0 3 9 -8
+
+		Compile the program with flag -DTYPE=int
+		The first line will check how the program handle 0 element input line.
+		The second line checks negative values could be sorted correctly. It also
+		verifies the binsertsort could handle line with several same value element.
+
+		TESTING
+		Here is the result of the output
+		1	j585zhan@ubuntu1604-002:~/cs343/a1$ cat test2.in
+		2	0
+		3	7 0 -2 3 0 3 9 -8
+		4	j585zhan@ubuntu1604-002:~/cs343/a1$ ./binsertsort test2.in
+		5	
+		6	
+		7	
+		8	0 -2 3 0 3 9 -8
+		9	-8 -2 0 0 3 3 9
+		10	
+
+		ANALYSIS
+		The result from running the program on "test2.in" shows that:
+		1)	Program could handle 0 element line correctly.
+		2)	Negative values is sorted into ascending order correctly.
+		3)	Items with the same value could be sorted correctly.
+
+	TEST 3:
+	-------
+		DATA DESCRIPTION
+		The third input file "test3.in" passed by command line argument as well.
+		It contains the test for non-basic type object:
+
+			1. 5 c1 c3 o1 o3 00
+
+		Compile the program with flag -DTYPE=CharInt
+		The non-basic type object is defined as CharInt, which will take the first
+		character and store the value into field named c into CharInt, and put the
+		integer value into field named i of class CharInt. To compare two CharInt
+		type object, we first compare its char value, the CharInt with greater char
+		value is larger. If field c is equal, then we compare its int value. If both
+		of them are same, we say two CharInt object are equal.
+		This is a simple test to test if program could handle non-basic type properly.
+
+		TESTING
+		Here is the result of the output
+		1 j585zhan@ubuntu1604-002:~/cs343/a1$ cat test3.in
+		2 5 c1 c3 o1 o3 00
+		3 j585zhan@ubuntu1604-002:~/cs343/a1$ ./binsertsort test3.in
+		4 c1 c3 o1 o3 00
+		5 00 c1 c3 o1 o3
+		6
+
+		ANALYSIS
+		The result from running the program on "test3.in" shows that:
+		1)	The program could recognize and sort non-basic type.
+
+	TEST 4:
+	-------
+		DATA DESCRIPTION
+		The forth test did not provided any command line argument.
+		This is a test to verify if program checking input argument
+		correctly.
+
+		TESTING
+		Here is the result of the output
+		1 j585zhan@ubuntu1604-002:~/cs343/a1$ ./binsertsort
+		2 Usage: ./binsertsort unsorted-file [ sorted-file ]
+
+		ANALYSIS
+		The result from running the program on "test4.in" shows that:
+		1) The program checks the existence of the unsorted-file
+
+	TEST 5:
+	-------
+		DATA DESCRIPTION
+		The forth test provides extra argument to command line.
+		This is a test to verify if program checking input argument
+		correctly.
+
+		TESTING
+		Here is the result of the output
+		1 j585zhan@ubuntu1604-002:~/cs343/a1$ ./binsertsort test1.in b c
+		2 Usage: ./binsertsort unsorted-file [ sorted-file ]
+
+		ANALYSIS
+		The result from running the program on "test4.in" shows that:
+		1) The program checks the correct number of argument.

@@ -51,7 +51,7 @@ int main(int argc, char *argv[]) {
 			// FALL THROUGH
 		case 1:						// all defaults
 			break;
-		default:						// wrong number of options
+		default:					// wrong number of options
 			usage( argv );
 	} // switch
 
@@ -68,7 +68,7 @@ int main(int argc, char *argv[]) {
 		/* initial players */
 		for (int j = 0; j < playerNum; j++) {
 			players[j] = new Player(j, potato);
-		}
+		} // for
 
 		int randomIndex = prng(playerNum - 1);
 		swap(players[0], players[randomIndex]);		// swap random index with 0
@@ -76,16 +76,19 @@ int main(int argc, char *argv[]) {
 		/* pair players */
 		for (int j = 0; j < playerNum; j++) {
 			players[j]->start(*players[(j-1+playerNum) % playerNum], *players[(j+1) % playerNum]);
-		}
+		} // for
 
-		Player::umpire = players[randomIndex];
+		Player::umpire = players[randomIndex];		// choose first umpire
+
+		/* start toss */
 		cout << "U ";
 		Player::umpire->toss();
 
 		/* clean up players */
 		for (int j = 0; j < playerNum; j++) {
 			delete players[j];
-		}
+		} // for
+
 		if (i != gameNum - 1) cout << endl << endl;
 	}
 

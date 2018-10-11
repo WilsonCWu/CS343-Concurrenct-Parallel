@@ -1,0 +1,53 @@
+a)
+10 results for:
+
+u++ q3.cc -O0:
+./a.out => shared:37044648
+./a.out => shared:27431472
+./a.out => shared:27382074
+./a.out => shared:26190754
+./a.out => shared:26221112
+./a.out => shared:24292375
+./a.out => shared:30804049
+./a.out => shared:24029352
+./a.out => shared:30803250
+./a.out => shared:26477416
+
+u++ q3.cc -O0 -multi:
+./a.out => shared:21746255
+./a.out => shared:20335281
+./a.out => shared:19834417
+./a.out => shared:20897637
+./a.out => shared:20598263
+./a.out => shared:22112228
+./a.out => shared:21075230
+./a.out => shared:20535242
+./a.out => shared:20284416
+./a.out => shared:21373827
+
+b)
+No, since modifying global variable 'share' in different thread without lock
+might cause a racing condition. Due to the scheduler's decision, the content
+switch is undeterministic.
+
+c)
+Max:			10000000 * 2 * 2 = 40000000
+Explanation:	Ideally when there is no race condtion happening, shared variable
+				got increased 2 each iteration per thread, and 10000000 iterations
+				in total, which is 40000000
+
+Min:			2
+Explanation:	1.	Thread 1 compute 0 + 1 = 1, switch to Thread 2.
+				2.	Thread 2 run all other iterations, except the
+					last += 1 in the last iteration. Then switch to Thread 1,
+				3.	Thread 1 restore value 1 to share. Now share is 1.
+					Switch to Thread 2.
+				4.	Thread 2 compute last += 1 in its last iteration.
+					The result is 1 + 1 = 2, switch to Thread 1.
+				5.	Thread 1 run all iterations. Switch to Thread 2.
+				6.	Thread 2 restore the result 2 to share. Program finished.
+
+d)
+When multi core, the shared variable size becomes relatively smaller than
+single core varaible. The reason of that is because multi core has more frequently
+content switch, therefore more race conditions happens.

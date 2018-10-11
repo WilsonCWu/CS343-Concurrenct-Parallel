@@ -9,6 +9,7 @@ Player::Player(int id, Potato &potato): id( id ), potato( &potato ) {};
 void Player::start(Player &lp, Player &rp) {
 	partner[0] = &lp;
 	partner[1] = &rp;
+	resume();
 }
 
 void Player::toss() {
@@ -16,6 +17,7 @@ void Player::toss() {
 }
 
 void Player::main() {
+	suspend();
 	while (true) {
 		try {
 			_Enable {}
@@ -37,7 +39,6 @@ void Player::main() {
 				Player::umpire = newUmpire;
 				_Resume Terminate(this) _At *newUmpire;
 				newUmpire->toss();
-				return;
 			} else {						// players catch Election
 				cout << " -> " << id;
 				if (e.id > id) {			// id is smaller than current election id
@@ -69,7 +70,6 @@ void Player::main() {
 			} else {						// player explode
 				_Resume Terminate(this) _At *umpire;
 				umpire->toss();
-				return;
 			} // if
 		} // try
 		Player *next = partner[prng(1)];
