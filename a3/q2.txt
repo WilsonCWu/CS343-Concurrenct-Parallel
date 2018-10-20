@@ -1,0 +1,66 @@
+b)
+i.
+-DIMPLICIT:
+/usr/bin/time -f "%Uu %Ss %Er" ./a.out 500 600 10000 1
+43.47u 0.23s 0:43.60r
+/usr/bin/time -f "%Uu %Ss %Er" ./a.out 500 600 10000 2
+45.00u 0.36s 0:22.70r
+/usr/bin/time -f "%Uu %Ss %Er" ./a.out 500 600 10000 4
+44.64u 0.25s 0:11.33r
+/usr/bin/time -f "%Uu %Ss %Er" ./a.out 500 600 10000 8
+43.60u 0.32s 0:05.65r
+/usr/bin/time -f "%Uu %Ss %Er" ./a.out 500 600 10000 16
+45.63u 0.26s 0:03.01r
+
+-DEXPLICIT:
+/usr/bin/time -f "%Uu %Ss %Er" ./a.out 500 600 10000 1
+36.82u 0.28s 0:37.00r
+/usr/bin/time -f "%Uu %Ss %Er" ./a.out 500 600 10000 2
+40.01u 0.36s 0:20.21r
+/usr/bin/time -f "%Uu %Ss %Er" ./a.out 500 600 10000 4
+41.24u 0.36s 0:10.49r
+/usr/bin/time -f "%Uu %Ss %Er" ./a.out 500 600 10000 8
+41.53u 0.31s 0:05.35r
+/usr/bin/time -f "%Uu %Ss %Er" ./a.out 500 600 10000 16
+44.54u 0.52s 0:02.95r
+
+ii.
+As the number of kernel thread increase by a factor of 2,
+the system time is for both implicit and explicit is approximately halved.
+
+iii.
+Comparing to the Explicit, Implicit consumes a little bit more
+real time.(about 6s for 1 processor, and larger than 2s for 2 processors,
+less than 1s for 4 processors, less than 0.5s for 8 processors,
+and less than 0.1s for 16 processors.)
+
+
+c)
+i.
+-DIMPLICIT
+/usr/bin/time -f "%Uu %Ss %Er" ./a.out 500 600 10000 1
+25.75u 0.25s 0:25.94r
+/usr/bin/time -f "%Uu %Ss %Er" ./a.out 500 600 10000 2
+27.25u 0.21s 0:13.73r
+/usr/bin/time -f "%Uu %Ss %Er" ./a.out 500 600 10000 4
+28.90u 0.20s 0:07.35r
+/usr/bin/time -f "%Uu %Ss %Er" ./a.out 500 600 10000 8
+30.39u 0.25s 0:03.92r
+/usr/bin/time -f "%Uu %Ss %Er" ./a.out 500 600 10000 16
+33.33u 0.20s 0:02.22r
+
+-DEXPLICIT
+/usr/bin/time -f "%Uu %Ss %Er" ./a.out 500 600 10000 1
+25.72u 0.29s 0:25.96r
+/usr/bin/time -f "%Uu %Ss %Er" ./a.out 500 600 10000 2
+26.81u 0.29s 0:13.56r
+/usr/bin/time -f "%Uu %Ss %Er" ./a.out 500 600 10000 4
+28.71u 0.40s 0:07.34r
+/usr/bin/time -f "%Uu %Ss %Er" ./a.out 500 600 10000 8
+29.15u 0.42s 0:03.79r
+/usr/bin/time -f "%Uu %Ss %Er" ./a.out 500 600 10000 16
+31.42u 0.50s 0:02.08r
+
+ii.
+The time reduced approximately 40% when adding the optimization.
+And the real time for both Implicit and Explicit are approximately same.

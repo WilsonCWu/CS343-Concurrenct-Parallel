@@ -1,0 +1,68 @@
+a)
+DARRAY:
+/usr/bin/time -f "%Uu %Ss %E" ./a.out 1 10000000
+0.91u 0.00s 0:00.91
+/usr/bin/time -f "%Uu %Ss %E" ./a.out 2 10000000
+10.16u 0.01s 0:05.12
+/usr/bin/time -f "%Uu %Ss %E" ./a.out 4 10000000
+24.56u 0.06s 0:06.78
+
+VECTOR1:
+/usr/bin/time -f "%Uu %Ss %E" ./a.out 1 10000000
+1.24u 0.00s 0:01.25
+/usr/bin/time -f "%Uu %Ss %E" ./a.out 2 10000000
+11.32u 0.02s 0:05.68
+/usr/bin/time -f "%Uu %Ss %E" ./a.out 4 10000000
+52.81u 0.08s 0:13.64
+
+VECTOR2:
+/usr/bin/time -f "%Uu %Ss %E" ./a.out 1 10000000
+6.13u 0.05s 0:06.18
+/usr/bin/time -f "%Uu %Ss %E" ./a.out 2 10000000
+58.36u 0.09s 0:29.28
+/usr/bin/time -f "%Uu %Ss %E" ./a.out 4 10000000
+286.38u 0.40s 1:11.68
+
+STACK:
+/usr/bin/time -f "%Uu %Ss %E" ./a.out 1 10000000
+0.60u 0.00s 0:00.62
+/usr/bin/time -f "%Uu %Ss %E" ./a.out 2 10000000
+1.20u 0.00s 0:00.60
+/usr/bin/time -f "%Uu %Ss %E" ./a.out 4 10000000
+2.62u 0.00s 0:00.71
+
+
+b)
+DARRAY:
+user time comparison:	The time is around 10 seconds larger when increase
+						from 1 task to 2, and more than 10 seconds larger
+						when increase from 2 to 4.
+real time comparison:	The time is 5 seconds larger when increase from 1 task
+						to 2, and more than 1 second larger when increased from
+						2 to 4.
+
+VECTOR1:
+user time comparison:	The time is around 10 seconds larger when increase
+						from 1 task to 2, and more than 40 seconds larger
+						when increase from 2 to 4.
+real time comparison:	The time is 4 seconds larger when increase from 1 task
+						to 2, and 8 seconds larger when increase from 2 to 4.
+
+VECTOR2:
+user time comparison:	The time is more than 40 seconds larger when increase
+						from 1 task to 2, and more than 200 seconds larger
+						when increase from 2 to 4.
+real time comparison:	The time is more than 20 seconds larger when increase
+						from 1 task to 2 and more than 40 seconds increase from 2 to 4
+
+STACK:
+user time comparison:	The time is doubled (0.6 seconds larger) when increase
+						from 1 task to 2, and approximately doubled again (1.4 seconds larger)
+						when increase from 2 to 4.
+real time comparison:	The time is approximately the same between three results.
+
+c)
+stack has the best performance, followed by dynamic array, then vector1.
+vector 2 has the worse performance. The reason of that is because stack is
+faster than heap (stack dont need to allocate and deallocate memory while heap
+need to keep tracking the memory allocation)
