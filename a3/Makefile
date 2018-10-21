@@ -1,5 +1,5 @@
 OPT:= # -multi -O2
-MIMPL:=EXPLICIT
+MIMPL:=IMPLICIT
 BIMPL:=NOBUSY
 TYPE:=int
 SENTINEL:=-1
@@ -9,7 +9,7 @@ CXXFLAGS = -g ${OPT} -multi -Wall -Wextra -MMD -std=c++14 -D"${MIMPL}" -D"${BIMP
 	   -DTYPE="${TYPE}" -DSENTINEL="${SENTINEL}" # compiler flags
 MAKEFILE_NAME = ${firstword ${MAKEFILE_LIST}}	# makefile name
 
-OBJECTS1 = # object files forming 1st executable with prefix "q2"
+OBJECTS1 = q2main.o q2matrix.o q2multiplier.o	# object files forming 1st executable with prefix "q2"
 EXEC1 = matrixmultiply				# 1st executable name
 
 OBJECTS2 = # object files forming 2nd executable with prefix "q3"

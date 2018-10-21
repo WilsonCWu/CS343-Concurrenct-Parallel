@@ -13,6 +13,7 @@ int volatile itemCount = 0;
 int maxItems = 0;
 uOwnerLock lock;
 uCondLock consLock, prodsLock;
+int volatile consWaiter = 0, prodsWaiter = 0;
 
 template<typename T> class BoundedBuffer {
 	queue<T>items;
@@ -29,19 +30,56 @@ BoundedBuffer<T>::BoundedBuffer(const unsigned int size) {
 
 template<typename T>
 void BoundedBuffer<T>::insert(T elem) {
+	lock.acquire();
+
+#ifdef BUSY                            // busy waiting implementation
+	while (itemCount == maxItems) {
+		prodsLock.wait(lock);
+	}
+#endif // BUSY
+
+#ifdef NOBUSY                          // no busy waiting implementation
+	if (prodsWaiter > 0 || itemCount == maxItems) {
+		prodsWaiter += 1;
+		prodsLock.wait(lock);
+		prodsWaiter -= 1;
+	}
+#endif // NOBUSY
+
 	assert(itemCount < maxItems);
 	items.push(elem);
-	cout << "insert " << elem << endl;
 	itemCount += 1;
+
+	consLock.signal();
+	lock.release();
 }
 
 template<typename T>
 T BoundedBuffer<T>::remove() {
+	lock.acquire();
+
+#ifdef BUSY                            // busy waiting implementation
+	while (itemCount == 0) {
+		consLock.wait(lock);
+	}
+#endif // BUSY
+
+#ifdef NOBUSY                          // no busy waiting implementation
+	if (consWaiter > 0 || itemCount == 0) {
+		consWaiter += 1;
+		consLock.wait(lock);
+		consWaiter -= 1;
+	}
+#endif // NOBUSY
+
 	assert(itemCount > 0);
 	T elem = items.front();
 	items.pop();
-	cout << "remove " << elem << endl;
 	itemCount -= 1;
+
+	prodsLock.signal();
+	lock.release();
+
 	return elem;
 }
 
@@ -59,23 +97,7 @@ Producer::Producer(BoundedBuffer<int> &buffer, const int Produce, const int Dela
 void Producer::main() {
 	for (int i = 1; i <= produce; i++) {
 		yield(mprng(delay - 1));
-		lock.acquire();
-
-#ifdef BUSY                            // busy waiting implementation
-		while (itemCount == maxItems) {
-			prodsLock.wait(lock);
-		}
-#endif // BUSY
-
-#ifdef NOBUSY                          // no busy waiting implementation
-		if (!prodsLock.empty() || itemCount == maxItems) {
-			prodsLock.wait(lock);
-		}
-#endif // NOBUSY
-
 		buffer->insert(i);
-		consLock.signal();
-		lock.release();
 	}
 }
 
@@ -96,29 +118,11 @@ Consumer::Consumer(BoundedBuffer<int> &buffer, const int Delay, const int Sentin
 void Consumer::main() {
 	while (true) {
 		yield(mprng(delay - 1));
-		lock.acquire();
-
-#ifdef BUSY                            // busy waiting implementation
-		while (itemCount == 0) {
-			consLock.wait(lock);
-		}
-#endif // BUSY
-
-#ifdef NOBUSY                          // no busy waiting implementation
-		if (!consLock.empty() || itemCount == 0) {
-			consLock.wait(lock);
-		}
-#endif // NOBUSY
-
 		int item = buffer->remove();
 		if (item == sentinel) {
-			prodsLock.signal();
-			lock.release();
 			return;
 		}
 		*sum += item;
-		prodsLock.signal();
-		lock.release();
 	}
 }
 
@@ -183,24 +187,9 @@ int main (int argc, char *argv[]) {
 	}
 
 	for (int i = 0; i < cons; i++) {
-		lock.acquire();
-
-#ifdef BUSY                            // busy waiting implementation
-		while (itemCount == maxItems) {
-			prodsLock.wait(lock);
-		}
-#endif // BUSY
-
-#ifdef NOBUSY                          // no busy waiting implementation
-		if (!prodsLock.empty() || itemCount == maxItems) {
-			prodsLock.wait(lock);
-		}
-#endif // NOBUSY
-
 		buffer.insert(sentinel);
-		consLock.signal();
-		lock.release();
 	}
+	consLock.broadcast();//TODO: fix this!!
 
 	for (int i = 0; i < cons; i++) {
 		delete consumers[i];
