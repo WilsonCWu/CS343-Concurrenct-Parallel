@@ -2,20 +2,19 @@
 #include <iostream>
 #include <string>
 #include <queue>
-#include "MPRNG2.h"
+#include "MPRNG.h"
 
 #include <cassert>
 using namespace std;
 
 MPRNG mprng;
 
-int volatile itemCount = 0;
-int maxItems = 0;
-uOwnerLock lock;
-uCondLock consLock, prodsLock;
-int volatile consWaiter = 0, prodsWaiter = 0;
-
 template<typename T> class BoundedBuffer {
+	uOwnerLock lock;
+	uCondLock consLock, prodsLock;
+	int volatile consSignal = 0, prodsSignal = 0;
+
+	unsigned int size;
 	queue<T>items;
 	public:
 	BoundedBuffer( const unsigned int size = 10 );
@@ -24,31 +23,36 @@ template<typename T> class BoundedBuffer {
 };
 
 template<typename T>
-BoundedBuffer<T>::BoundedBuffer(const unsigned int size) {
-	maxItems = size;
-}
+BoundedBuffer<T>::BoundedBuffer(const unsigned int size): size(size) {}; 
 
 template<typename T>
 void BoundedBuffer<T>::insert(T elem) {
 	lock.acquire();
 
 #ifdef BUSY                            // busy waiting implementation
-	while (itemCount == maxItems) {
+	while (items.size() == size) {
 		prodsLock.wait(lock);
 	}
 #endif // BUSY
-
 #ifdef NOBUSY                          // no busy waiting implementation
-	if (prodsWaiter > 0 || itemCount == maxItems) {
-		prodsWaiter += 1;
+	if (prodsSignal > 0 || items.size() == size) {
 		prodsLock.wait(lock);
-		prodsWaiter -= 1;
+		prodsSignal -= 1;
 	}
 #endif // NOBUSY
 
-	assert(itemCount < maxItems);
+	assert(items.size() < size);
 	items.push(elem);
-	itemCount += 1;
+
+#ifdef NOBUSY                          // no busy waiting implementation
+	if (prodsSignal == 0 && !prodsLock.empty() && items.size() < size) {
+		prodsSignal += 1;
+		prodsLock.signal();
+	}
+	if (!consLock.empty()) {
+		consSignal += 1;
+	}
+#endif // NOBUSY
 
 	consLock.signal();
 	lock.release();
@@ -59,23 +63,30 @@ T BoundedBuffer<T>::remove() {
 	lock.acquire();
 
 #ifdef BUSY                            // busy waiting implementation
-	while (itemCount == 0) {
+	while (items.size() == 0) {
 		consLock.wait(lock);
 	}
 #endif // BUSY
-
 #ifdef NOBUSY                          // no busy waiting implementation
-	if (consWaiter > 0 || itemCount == 0) {
-		consWaiter += 1;
+	if (consSignal > 0 || items.size() == 0) {
 		consLock.wait(lock);
-		consWaiter -= 1;
+		consSignal -= 1;
 	}
 #endif // NOBUSY
 
-	assert(itemCount > 0);
+	assert(items.size() > 0);
 	T elem = items.front();
 	items.pop();
-	itemCount -= 1;
+
+#ifdef NOBUSY                          // no busy waiting implementation
+	if (consSignal == 0 && !consLock.empty() && items.size() > 0) {
+		consSignal += 1;
+		consLock.signal();
+	}
+	if (!prodsLock.empty()) {
+		prodsSignal += 1;
+	}
+#endif // NOBUSY
 
 	prodsLock.signal();
 	lock.release();
@@ -189,7 +200,6 @@ int main (int argc, char *argv[]) {
 	for (int i = 0; i < cons; i++) {
 		buffer.insert(sentinel);
 	}
-	consLock.broadcast();//TODO: fix this!!
 
 	for (int i = 0; i < cons; i++) {
 		delete consumers[i];
