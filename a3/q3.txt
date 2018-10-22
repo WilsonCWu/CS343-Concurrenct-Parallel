@@ -1,0 +1,61 @@
+i)
+u++ q3main.cc q3producer.cc q3consumer.cc -DBUSY -DTYPE=int -DSENTINEL=-1
+/usr/bin/time -f "%Uu %Ss %E" ./a.out 50 55 10000 30 10
+total: -1544692296
+1.03u 0.02s 0:01.05
+
+u++ q3main.cc q3producer.cc q3consumer.cc -DNOBUSY -DTYPE=int -DSENTINEL=-1
+/usr/bin/time -f "%Uu %Ss %E" ./a.out 50 55 10000 30 10
+total: -1544692296
+1.27u 0.01s 0:01.33
+
+u++ q3main.cc q3producer.cc q3consumer.cc -DBUSY -DTYPE=int -DSENTINEL=-1 -O2
+/usr/bin/time -f "%Uu %Ss %E" ./a.out 50 55 10000 30 10
+total: -1544692296
+1.11u 0.02s 0:01.14
+
+u++ q3main.cc q3producer.cc q3consumer.cc -DNOBUSY -DTYPE=int -DSENTINEL=-1 -O2
+/usr/bin/time -f "%Uu %Ss %E" ./a.out 50 55 10000 30 10
+total: -1544692296
+1.24u 0.01s 0:01.28
+
+ii)
+there are little differences between these four results, less than half seconds usertime.
+
+iii)
+u++ q3main.cc q3producer.cc q3consumer.cc -DBUSY -DTYPE=int -DSENTINEL=-1 -multi
+/usr/bin/time -f "%Uu %Ss %E" ./a.out 50 55 10000 30 10
+total: -1544692296
+29.48u 0.06s 0:07.40
+
+u++ q3main.cc q3producer.cc q3consumer.cc -DNOBUSY -DTYPE=int -DSENTINEL=-1 -multi
+/usr/bin/time -f "%Uu %Ss %E" ./a.out 50 55 10000 30 10
+total: -1544692296
+40.77u 0.07s 0:10.23
+
+u++ q3main.cc q3producer.cc q3consumer.cc -DBUSY -DTYPE=int -DSENTINEL=-1 -multi -O2
+/usr/bin/time -f "%Uu %Ss %E" ./a.out 50 55 10000 30 10
+total: -1544692296
+24.11u 0.07s 0:06.06
+
+u++ q3main.cc q3producer.cc q3consumer.cc -DNOBUSY -DTYPE=int -DSENTINEL=-1 -multi -O2
+/usr/bin/time -f "%Uu %Ss %E" ./a.out 50 55 10000 30 10
+total: -1544692296
+30.85u 0.06s 0:07.74
+
+iv)
+there are large differences between multi busy O0 (about 28 seconds), nobusy O0 (about 39 seconds),
+multi busy O2 (about 23 seconds), and nobusy O2 (about 29 seconds).
+There are about 6 (with opt) to 10 (without opt) seconds difference between busy and nonbusy,
+busy takes less time.
+There are about 5 (busy) to 10 (nobusy) seconds less when adding -O2.
+
+v)
+The reason of busy takes less time than nobusy might due to nobusy requries barger to do
+extra sleep to keep fifo order while busy does not need to.
+
+vi)
+since there is only one resource (buffer) there, additional thread (multi) will only cause
+unwanted content switch while cannot increase production.
+
+
