@@ -5,14 +5,14 @@ TYPE:=int
 SENTINEL:=-1
 
 CXX = u++					# compiler
-CXXFLAGS = -g ${OPT} -multi -Wall -Wextra -MMD -std=c++14 -D"${MIMPL}" -D"${BIMPL}" \
+CXXFLAGS = -g ${OPT} -Wall -Wextra -MMD -std=c++14 -D"${MIMPL}" -D"${BIMPL}" \
 	   -DTYPE="${TYPE}" -DSENTINEL="${SENTINEL}" # compiler flags
 MAKEFILE_NAME = ${firstword ${MAKEFILE_LIST}}	# makefile name
 
-OBJECTS1 = q2main.o q2matrix.o q2multiplier.o	# object files forming 1st executable with prefix "q2"
+OBJECTS1 = q2main.o q2matrixmultiply.o q2multiplier.o	# object files forming 1st executable with prefix "q2"
 EXEC1 = matrixmultiply				# 1st executable name
 
-OBJECTS2 = # object files forming 2nd executable with prefix "q3"
+OBJECTS2 = q3main.o q3consumer.o q3producer.o	# object files forming 2nd executable with prefix "q3"
 EXEC2 = buffer					# 2nd executable name
 
 OBJECTS = ${OBJECTS1} ${OBJECTS2}		# all object files

@@ -2,7 +2,7 @@
 #include <iostream>
 #include <string>
 #include <fstream>
-#include "q2matrix.h"
+#include "q2matrixmultiply.h"
 
 using namespace std;
 
