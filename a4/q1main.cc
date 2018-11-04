@@ -1,9 +1,13 @@
 #include "MPRNG.h"
+using namespace std;
+#include <iostream>
 MPRNG mprng;
 
 _Monitor Printer;
 
 /* *********************************************************************** */
+#include <uBarrier.h>
+#include <uSemaphore.h>
 #if defined( MC )                    // mutex/condition solution
 // includes for this kind of vote-tallier
 class TallyVotes {
@@ -13,6 +17,7 @@ class TallyVotes {
 	uCondLock waitLock;
 #elif defined( SEM )                // semaphore solution
 // includes for this kind of vote-tallier
+	uSemaphore lockSem(1), gateSem(1), waitSem(0), leftSem(0), doneSem(1);
 class TallyVotes {
     // private declarations for this kind of vote-tallier
 #elif defined( BAR )                // barrier solution
@@ -90,7 +95,6 @@ TallyVotes::Tour TallyVotes::vote(unsigned int id, Ballot ballot) {
 		throw Failed();
 	}
 	lock.acquire();
-	//if (signal != 0 || count == group) gateLock.wait(lock);
 	if (waitSignal != 0 || gateSignal != 0 || count == group) {
 		printer.print(id, Voter::States::Barging);
 		gateLock.wait(lock);
@@ -113,15 +117,16 @@ TallyVotes::Tour TallyVotes::vote(unsigned int id, Ballot ballot) {
 			gateLock.signal();
 		}
 		waitLock.wait(lock);
+		waitSignal -= 1;
+		count -= 1;
+		printer.print(id, Voter::States::Unblock, count);
 		if (voters - left < group) {
 			lock.release();
 			throw Failed();
 		}
-		waitSignal -= 1;
-		count -= 1;
-		printer.print(id, Voter::States::Unblock, count);
 	} else {
 		printer.print(id, Voter::States::Complete);
+		count -= 1;
 	}
 	Tour result = countStatue > countPicture && countStatue > countGiftshop ? Tour::Statue
 		: countPicture > countGiftshop ? Tour::Picture : Tour::GiftShop;
@@ -143,6 +148,7 @@ TallyVotes::Tour TallyVotes::vote(unsigned int id, Ballot ballot) {
 }
 
 void TallyVotes::done() {
+	if (voters - left < group) return;
 	lock.acquire();
 	if (waitSignal != 0 || gateSignal != 0) {
 		gateLock.wait(lock);
@@ -161,6 +167,111 @@ void TallyVotes::done() {
 	lock.release();
 }
 
+#elif defined (SEM)
+TallyVotes::TallyVotes(unsigned int voters, unsigned int group, Printer & printer)
+	: voters(voters), group(group), printer(printer) {
+	}
+
+TallyVotes::Tour TallyVotes::vote(unsigned int id, Ballot ballot) {
+	if (voters - left < group) {
+		throw Failed();
+	}
+	gateSem.P();
+	if (voters - left < group) {
+		gateSem.V();
+		throw Failed();
+	}
+	count += 1;
+	assert(count <= group);
+	countPicture += ballot.picture;
+	countStatue += ballot.statue;
+	countGiftshop += ballot.giftshop;
+	printer.print(id, Voter::States::Vote, ballot);
+	if (count != group) {
+		printer.print(id, Voter::States::Block, count);
+		gateSem.V();
+		waitSem.P();
+		count -= 1;
+		printer.print(id, Voter::States::Unblock, count);
+		if (voters - left < group) {
+			waitSem.V();
+			throw Failed();
+		}
+	} else {
+		printer.print(id, Voter::States::Complete);
+		count -= 1;
+	}
+	Tour result = countStatue > countPicture && countStatue > countGiftshop ? Tour::Statue
+		: countPicture > countGiftshop ? Tour::Picture : Tour::GiftShop;
+	if (count != 0) {
+		waitSem.V();
+		leftSem.P();
+		if (leftSem.empty()) {
+			gateSem.V();
+		} else {
+			leftSem.V();
+		}
+	} else {
+		countStatue = 0;
+		countPicture = 0;
+		countGiftshop = 0;
+		leftSem.V();
+	}
+	return result;
+}
+
+void TallyVotes::done() {
+	if (voters - left < group) {
+		if (!gateSem.empty()) gateSem.V();
+		if (!waitSem.empty()) waitSem.V();
+		return;
+	}
+	doneSem.P();
+	left += 1;
+	if (voters - left < group) {
+		if (!gateSem.empty()) gateSem.V();
+		if (!waitSem.empty()) waitSem.V();
+	}
+	doneSem.V();
+}
+
+
+#elif defined (BAR)
+TallyVotes::TallyVotes(unsigned int voters, unsigned int group, Printer & printer)
+	: voters(voters), group(group), printer(printer), uBarrier(group) {
+	}
+
+TallyVotes::Tour TallyVotes::vote(unsigned int id, Ballot ballot) {
+	if (voters - left < group) throw Failed();
+	count += 1;
+	countPicture += ballot.picture;
+	countStatue += ballot.statue;
+	countGiftshop += ballot.giftshop;
+	printer.print(id, Voter::States::Vote, ballot);
+	if (waiters() + 1 < group) {
+		printer.print(id, Voter::States::Block, count);
+		block();
+		count -= 1;
+		printer.print(id, Voter::States::Unblock, count);
+	} else {
+		block();
+		count -= 1;
+		printer.print(id, Voter::States::Complete);
+	}
+	if (voters - left < group) throw Failed();
+	Tour result = countStatue > countPicture && countStatue > countGiftshop ? Tour::Statue
+		: countPicture > countGiftshop ? Tour::Picture : Tour::GiftShop;
+	if (count == 0) {
+		countStatue = 0;
+		countPicture = 0;
+		countGiftshop = 0;
+	}
+	return result;
+}
+void TallyVotes::done() {
+	if (voters - left == group && waiters() != 0) block();
+	left += 1;
+}
 #endif
 /* *********************************************************************** */
 
@@ -183,8 +294,8 @@ void Voter::main() {
 			break;
 		}
 	}
-	printer.print(id, States::Terminated);
 	voteTallier.done();
+	printer.print(id, States::Terminated);
 }
 Voter::Voter(unsigned int id, unsigned int nvotes, TallyVotes & voteTallier, Printer & printer)
 	: id(id), nvotes(nvotes), voteTallier(voteTallier), printer(printer) {};
