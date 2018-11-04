@@ -1,7 +1,7 @@
 #ifndef __CONSUMER_H__
 #define __CONSUMER_H__
 
-#include "q3boundedbuffer.h"
+#include "q3buffer.h"
 #include "MPRNG.h"
 
 extern MPRNG mprng;
