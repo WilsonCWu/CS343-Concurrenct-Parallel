@@ -24,7 +24,7 @@ _Cormonitor TallyVotes : public uBarrier {
 #endif
     unsigned int voters, group;
 	unsigned int left = 0;
-	unsigned int signal = 0;
+	unsigned int waitSignal = 0, gateSignal = 0;
 	Printer &printer;
 	unsigned int count = 0, countPicture = 0, countStatue = 0, countGiftshop = 0;
   public:                            // common interface
@@ -90,7 +90,12 @@ TallyVotes::Tour TallyVotes::vote(unsigned int id, Ballot ballot) {
 		throw Failed();
 	}
 	lock.acquire();
-	if (signal != 0 || count == group) gateLock.wait(lock);
+	//if (signal != 0 || count == group) gateLock.wait(lock);
+	if (waitSignal != 0 || gateSignal != 0 || count == group) {
+		printer.print(id, Voter::States::Barging);
+		gateLock.wait(lock);
+		gateSignal -= 1;	// waked up
+	}
 	if (voters - left < group) {
 		lock.release();
 		throw Failed();
@@ -103,36 +108,57 @@ TallyVotes::Tour TallyVotes::vote(unsigned int id, Ballot ballot) {
 	printer.print(id, Voter::States::Vote, ballot);
 	if (count != group) {
 		printer.print(id, Voter::States::Block, count);
-		gateLock.signal();
+		if (!gateLock.empty()) {
+			gateSignal += 1;
+			gateLock.signal();
+		}
 		waitLock.wait(lock);
-		signal -= 1;
-		printer.print(id, Voter::States::Unblock, signal);
+		if (voters - left < group) {
+			lock.release();
+			throw Failed();
+		}
+		waitSignal -= 1;
+		count -= 1;
+		printer.print(id, Voter::States::Unblock, count);
 	} else {
-		waitLock.signal();
-		signal = group - 1;
 		printer.print(id, Voter::States::Complete);
 	}
 	Tour result = countStatue > countPicture && countStatue > countGiftshop ? Tour::Statue
 		: countPicture > countGiftshop ? Tour::Picture : Tour::GiftShop;
-	if (signal == 0) {
+	if (!waitLock.empty()) {
+		waitLock.signal();
+		waitSignal += 1;
+	} else {
 		count = 0;
 		countStatue = 0;
 		countPicture = 0;
 		countGiftshop = 0;
+		if (!gateLock.empty()) {
+			gateLock.signal();
+			gateSignal += 1;
+		}
 	}
-	if (!waitLock.empty()) waitLock.signal();
-	else gateLock.signal();
 	lock.release();
 	return result;
 }
 
 void TallyVotes::done() {
 	lock.acquire();
+	if (waitSignal != 0 || gateSignal != 0) {
+		gateLock.wait(lock);
+		gateSignal -= 1;
+	}
 	left += 1;
-	lock.release();
 	if (voters - left < group) {
 		gateLock.broadcast();
+		waitLock.broadcast();
+	} else if (waitSignal == 0 && gateSignal == 0) {
+		if (!gateLock.empty()) {
+			gateLock.signal();
+			gateSignal += 1;
+		}
 	}
+	lock.release();
 }
 
 #endif
