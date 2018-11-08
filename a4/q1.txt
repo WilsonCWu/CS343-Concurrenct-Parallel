@@ -1,0 +1,29 @@
+i)
+-DMC
+/usr/bin/time -f "%Uu %Ss %Er %Mkb" ./vote 100 10 10000 1003
+2.04u 0.03s 0:02.08r 32420kb
+/usr/bin/time -f "%Uu %Ss %Er %Mkb" ./vote 100 10 10000 1003 2
+14.66u 0.04s 0:07.35r 32632kb
+
+-DSEM
+/usr/bin/time -f "%Uu %Ss %Er %Mkb" ./vote 100 10 10000 1003
+2.18u 0.03s 0:02.21r 32320kb
+/usr/bin/time -f "%Uu %Ss %Er %Mkb" ./vote 100 10 10000 1003 2
+16.06u 0.03s 0:08.04r 32616kb
+
+-DBAR
+/usr/bin/time -f "%Uu %Ss %Er %Mkb" ./vote 100 10 10000 1003
+2.22u 0.06s 0:02.28r 32424kb
+/usr/bin/time -f "%Uu %Ss %Er %Mkb" ./vote 100 10 10000 1003 2
+20.95u 0.06s 0:10.49r 33484kb
+
+ii)
+The performance is different by less than 0.20 seconds in user and real time
+between MC SEM and BAR, owner lock with cond lock performs slightly better
+than other two, followed by semaphores(less than 0.15 seconds slower in 
+both user time and real time. Barrier solution is less than 0.1 seconds
+slower in user time and real time compare to Semaphores.
+With kernel threads increases(to 2), all of three implementation performance significantly
+slower in the user time(12 seconds for MC, 14 seconds for SEM and 18 seconds
+for BAR), and real time(5 seconds slower for MC, 6 seconds slower for SEM
+and 8 seconds slower for BAR).
