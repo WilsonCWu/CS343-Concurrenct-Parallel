@@ -1,0 +1,4 @@
+The climax is a deadlock. On the angels viewpoint, they cannot
+see each other, and continuously to move front, until the intersection
+is blocked. There is no way to break the tie unless take one of it out.
+ At last, none of them can move.
