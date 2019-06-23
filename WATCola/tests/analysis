@@ -1,0 +1,36 @@
++Test #
++Type of Test
++Reason for Test
++Analysis of Test
++1
++Invalid command-line option. Multiple tests for invalid options.
++Testing if the program correctly outputs the usage message or error message when command-line options are invalid, so users can correct the options.
++The program correctly outputs the usage message.
++2
++Invalid config file.  Multiple tests for invalid config files.
++Since the numbers in the config files must be positive, we should test to see if program outputs error messages when we supply 0 / negative values for the configurations.
++The program correctly outputs the error messages indicating the configurations must be positive.
++3
++Boundary case. All values in config file set to 1.
++Since the minimum value for each of the settings in the config file is 1, we should test this boundary case to make sure the program works with the very basic settings.
++The program works with this setting and correctly outputs the desired sequence of actions each component performs.
++4
++Near boundary case. Multiple students, all else same as test 3.
++We should test when there are multiple students, whether they are all distributed to the same (the only) vending machine, i.e. the name server correctly distributes students when there are more students than vending machines. 
++The program correctly distributed all students to the same machine.
++5
++Near boundary case. Multiple vending machines, all else same as test 3.
++When the only student is created and vending machines are just created, there is no stock in any machine. So the buy request from the student should result in a change in vending machine. This test tests whether the name server correctly assigns new vending machines to the student using round-robin.
++The name server correctly assigns new vending machines to the student when no stock is available.
++6
++Special case. Expensive soda.
++We should test the case where a soda costs more than the initial WatCard balance to see if the student catches the exception and transfers to the watcard is correctly done. Also we should check if the remaining balance is also transferred to the new WatCard.
++The student correctly caught the exception and transfers more money to watcard, and the old balance is added to the new transfer amount.
++7
++
++
++
++8
++General Case. Default Parameters.
++All command line options are optional, so we should test the program behaviour when we do not specify the options.
++The program correctly executes with the default configuration file soda.config.

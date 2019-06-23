@@ -10,6 +10,7 @@ TallyVotes::TallyVotes(unsigned int voters, unsigned int group, Printer & printe
 
 TallyVotes::Tour TallyVotes::vote(unsigned int id, Ballot ballot) {
 	if (voters - left < group) throw Failed();	// if not enough to form group, throw
+	int ticket = serveTicket;
 
 	/* vote */
 	count += 1;
@@ -24,22 +25,21 @@ TallyVotes::Tour TallyVotes::vote(unsigned int id, Ballot ballot) {
 #ifdef OUTPUT
 		printer.print(id, Voter::States::Block, count);
 #endif
-		try {
-			_Accept(vote, done);
-		} catch (  uMutexFailure::RendezvousFailure & ) {}
-
+		WAITUNTIL((ticket != serveTicket),
+				({if (voters - left < group) throw Failed();}),);
 		count -= 1;
 #ifdef OUTPUT
 		printer.print(id, Voter::States::Unblock, count);
 #endif
 	} else {									// there are enough voter
-		out = group;
 		count -= 1;
+		serveTicket += 1;
+		out = group;
 #ifdef OUTPUT
 		printer.print(id, Voter::States::Complete);
 #endif
 	} // if
-	if (voters - left < group) throw Failed();	// check enough votes
+	out -= 1;
 
 	/* vote */
 	Tour result = countStatue > countPicture && countStatue > countGiftshop ? Tour::Statue
@@ -50,17 +50,14 @@ TallyVotes::Tour TallyVotes::vote(unsigned int id, Ballot ballot) {
 		countPicture = 0;
 		countGiftshop = 0;
 	} // if
-	return result;
+	RETURN(result);
 }
 
 void TallyVotes::done() {
-	if (voters - left < group) return;
 	left += 1;
-	out -= 1;
-	if (voters - left - out < group && out != 0) {	// need to wait for other voters get out from cast
-		try {
-			_Accept(done, vote);
-		} catch (  uMutexFailure::RendezvousFailure & ) {}
+	if (voters - left < group && count != 0) {	// need to wait for other voters get out of cast
+		WAITUNTIL((out == 0), ,);
 	}
+	RETURN();
 }
 

@@ -25,6 +25,17 @@ void TallyVotes::signalAll() {               // also useful
 
 TallyVotes::Tour TallyVotes::vote(unsigned int id, Ballot ballot) {
 	if (voters - left < group) throw Failed();	// if not enough to form group, throw
+	int ticket = serveTicket;
+
+	while (out != 0) {						// may have barging
+#ifdef OUTPUT
+		printer.print(id, Voter::Barging);
+#endif
+		barger = 1;
+		wait();
+		barger = 0;
+		if (voters - left < group) throw Failed();	// check enough votes
+	}
 
 	/* vote */
 	count += 1;
@@ -39,34 +50,47 @@ TallyVotes::Tour TallyVotes::vote(unsigned int id, Ballot ballot) {
 #ifdef OUTPUT
 		printer.print(id, Voter::States::Block, count);
 #endif
-		wait();
-		count -= 1;
+		while (ticket == serveTicket || out == 0) {	// wait until serve ticket increased, may have barging
+			if (voters - left < group) {	// check enough votes
+				count -= 1;
 #ifdef OUTPUT
-		printer.print(id, Voter::States::Unblock, count);
+				printer.print(id, Voter::States::Unblock, count);
+#endif
+				throw Failed();
+			}
+			wait();
+		}
+		out -= 1;
+#ifdef OUTPUT
+		printer.print(id, Voter::States::Unblock, out);
 #endif
 	} else {									// there are enough voter
-		out = group;
-		count -= 1;
+		out = group - 1;
+		count = 0;
+		serveTicket += 1;
+		signalAll();
 #ifdef OUTPUT
 		printer.print(id, Voter::States::Complete);
 #endif
 	} // if
-	if (voters - left < group) throw Failed();	// check enough votes
 
 	/* vote */
 	Tour result = countStatue > countPicture && countStatue > countGiftshop ? Tour::Statue
 		: countPicture > countGiftshop ? Tour::Picture : Tour::GiftShop;
 
-	if (count == 0) {							// last one need to erase the votes
+	if (out == 0) {							// last one need to erase the votes
 		countStatue = 0;
 		countPicture = 0;
 		countGiftshop = 0;
+		if (barger == 1) {
+			signalAll();
+		}
 	}
 	return result;
 }
 
 void TallyVotes::done() {
 	left += 1;
-	if (voters - left < group) signalAll();
+	if (voters - left < group) signalAll();	// signal if not enough voters once I left.
 }
 

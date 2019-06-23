@@ -1,0 +1,149 @@
+The purpose of the question is to test thread communication and
+synchronization.
+
+The game simulates the election of the tour, there are three choice
+given in the voting, giftshop, picture and statues. Thread will block
+until there are enough votes(voters = group) to start the tour. If not
+enough people to start the tour, an exception will raise, and the voter
+will terminate.
+
+In our case, we print the message S for start, V p, s, g for vote ballot
+of three choices. B and U for block and unblock respectively. b for barging
+C for complete and vote result computed, F for finalize the tour, X for
+failed to form the group and T for terminate the voter.
+
+USER INTERFACE TESTING
+	There is no user interface to be tested, so the testing focuses
+	solely on the algorithm used for the parsing.
+
+Output Explanation:
+	1.	In first section of the output will check handling of command line argument.
+	2.	Verify the program will take 0 - 5 arguments, and each must be greater than 0 or 'd' for default.
+	3.	This section's output is testing for all five kinds of LIMPL
+	4.	The program is run twice to demonstrate the true randomness of the modifications.
+	5.	All test shows for no deadlock is happenning
+
+-------+---------+----------------------------------------------+-------------------------------------------------
+Test # | Line #s | Key Point of Test                            | Analysis of Test
+-------+---------+----------------------------------------------+-------------------------------------------------
+1      | 1-2	 | argument must greater than 0					| Showed the usage message, passed.
+-------+---------+----------------------------------------------+-------------------------------------------------
+2      | 3-4	 | argument must be either 'd' or number		| Showed the usage message, passed.
+-------+---------+----------------------------------------------+-------------------------------------------------
+3      | 5-6	 | argument number must less equals to 5		| Showed the usage message, passed.
+-------+---------+----------------------------------------------+-------------------------------------------------
+4      | 7-27	 | correct number of argument					| There are 6 voters, each need to vote once,
+       |         |                                              | the group size is 3. By carefully comparing
+       |         |                                              | result, all of them form group correctly,
+       |         |                                              | which is correct. (2 group is formed in this
+       |         |                                              | case.
+-------+---------+----------------------------------------------+-------------------------------------------------
+5      | 28-49	 | test for randomness							| The seed by default is random.
+-------+---------+----------------------------------------------+-------------------------------------------------
+6      | 50-57	 | test for not enough voter to form group		| X is displayed to indicate not enough voters
+-------+---------+----------------------------------------------+-------------------------------------------------
+7      | 58-67	 | The voter should terminate immidiately		| There is only one X per voters to indicate
+       |         | once failed to form a group.					| the vote is only processed for once, even
+       |         |                                              | the vote argument is 5
+-------+---------+----------------------------------------------+-------------------------------------------------
+8      | 68-79	 | The voter should success tour for once		| The full touring process is printed, and picture
+       |         |												| is chosed as final decision due to the highest
+       |         |                                              | score is given to p. This is printed in TASK,
+       |         |                                              | and shows all test need to block before complete
+-------+---------+----------------------------------------------+-------------------------------------------------
+9      | 80-92	 | This is test for synchronization				| Two voters choose giftshop correctly since
+       |         |												| giftshop get the highest vote score.
+-------+---------+----------------------------------------------+-------------------------------------------------
+
+	1	j585zhan@ubuntu1604-008:~/cs343/a5$ ./vote 0
+	2	Usage: ./vote [ voters | 'd' [ group | 'd' [ votes | 'd' [ seed | 'd' [ processors | 'd' ] ] ] ] ]
+	3	j585zhan@ubuntu1604-008:~/cs343/a5$ ./vote 1d
+	4	Usage: ./vote [ voters | 'd' [ group | 'd' [ votes | 'd' [ seed | 'd' [ processors | 'd' ] ] ] ] ]
+	5	j585zhan@ubuntu1604-008:~/cs343/a5$ ./vote 1 1 1 1 1 1
+	6	Usage: ./vote [ voters | 'd' [ group | 'd' [ votes | 'd' [ seed | 'd' [ processors | 'd' ] ] ] ] ]
+	7	j585zhan@ubuntu1604-008:~/cs343/a5$ ./vote
+	8	V0      V1      V2      V3      V4      V5
+	9	******* ******* ******* ******* ******* *******
+	10	        S       S       S
+	11	        V 1,0,2
+	12	        B 1     V 1,0,2
+	13	                B 2     V 0,2,1
+	14	        U 2     U 1     B 3             S
+	15	                F g     C
+	16	S       F g     T       U 0     S
+	17	        T               F g
+	18	                        T               V 1,2,0
+	19	                                V 1,2,0 B 1
+	20	V 1,2,0                         B 2
+	21	B 3                             U 1     U 2
+	22	C
+	23	U 0
+	24	F s                             F s     F s
+	25	T                               T       T
+	26	*****************
+	27	All tours started
+	28	j585zhan@ubuntu1604-008:~/cs343/a5$ ./vote
+	29	V0      V1      V2      V3      V4      V5
+	30	******* ******* ******* ******* ******* *******
+	31	S
+	32	V 0,2,1
+	33	B 1             S       S
+	34	                V 2,0,1
+	35	                B 2     V 2,1,0
+	36	U 2     S       U 1     B 3     S
+	37	F p                     C
+	38	T               F p     U 0
+	39	                T       F p             S
+	40	                        T       V 0,2,1
+	41	        V 2,0,1                 B 1
+	42	        B 2                             V 1,2,0
+	43	        U 1                     U 2     B 3
+	44	                                F s     C
+	45	                                        U 0
+	46	        F s                     T       F s
+	47	        T                               T
+	48	*****************
+	49	All tours started
+	50	j585zhan@ubuntu1604-008:~/cs343/a5$ ./vote 1 2
+	51	V0
+	52	*******
+	53	S
+	54	X
+	55	T
+	56	*****************
+	57	All tours started
+	58	j585zhan@ubuntu1604-008:~/cs343/a5$ ./vote 3 5 5
+	59	V0      V1      V2
+	60	******* ******* *******
+	61	        S       S
+	62	        X
+	63	S       T       X
+	64	X               T
+	65	T
+	66	*****************
+	67	All tours started
+	68	j585zhan@ubuntu1604-008:~/cs343/a5$ ./vote 1 1
+	69	V0
+	70	*******
+	71	S
+	72	V 2,1,0
+	73	B 1
+	74	C
+	75	U 0
+	76	F p
+	77	T
+	78	*****************
+	79	All tours started
+	80	j585zhan@ubuntu1604-008:~/cs343/a5$ ./vote 2 1
+	81	V0      V1
+	82	******* *******
+	83	S       S
+	84	V 1,0,2
+	85	B 1     V 1,0,2
+	86	U 1     B 2
+	87	F g     C
+	88	T       U 0
+	89	        F g
+	90	        T
+	91	*****************
+	92 All tours started

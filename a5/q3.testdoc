@@ -1,0 +1,131 @@
+The program verifies if the input strings are valid output from
+shell command `ls -l`. It will output the original string and
+how many characters are parsed, followed by 'yes' if the string
+is valid, or 'no' with extra characters if exist. A warning will
+be printed to the screen if line contains only '\n' is read.
+
+USER INTERFACE TESTING
+	There is no user interface to be tested, so the testing focuses
+	solely on the algorithm used for the parsing.
+
+ALGORITHM TESTING
+
+	Test 1:
+	-------
+		DATA DESCRIPTION
+		The first input file used (as a re-direction of standard input),
+		is "test1.in". The contents of the file are:
+
+			1. drwxrwxrwx	  12345 _abc.de*/*	  
+
+		The first part 'drwxrwxrwx' verifies the file type and permission
+		are parsed correctly. The second part is the whitespace between
+		'drwxrwxrwx' and '12345', it consist with tab and spaces. It proves
+		the program could handle multiple whitespace correctly. Last part
+		verifies the first * char will be parsed correctly, and extra part
+		should report an error
+
+		TESTING
+		Here is the result of the output
+		1 j585zhan@ubuntu1604-002:~/cs343/a1$ cat test1.in
+		2 drwxrwxrwx	  12345 _abc.de*/*
+		3 j585zhan@ubuntu1604-002:~/cs343/a1$ ./listing < test1.in
+		4 'drwxrwxrwx	  12345 _abc.de*/*' : 'drwxrwxrwx	  12345 _abc.de*/' no, extraneous characters '*' 
+
+		ANALYSIS
+		The results from running the program on "test1.in" shows that:
+		1)	All permissions are correctly parsed.
+		2)	All whitespaces are handled in a proper way.
+		3)	file name contains allowed special characters are verified to work properly.
+		4)	Ending * character is allowed.
+		5)	Extra stuff after the last allowed character will be detected and output
+			in a correct manner. Shown in 'no, extraneous ...'
+		6)	standard input are working properly.
+
+	TEST 2:
+	-------
+		DATA DESCRIPTION
+		The second input file using the command line to pass the input file
+		to the program. Inside "test2.in", the contents are:
+
+			1. ---------- 01234 abc
+
+		The first part will check if program could recognize '-' character as
+		a valid permission and file type. The second part contains a number
+		with leading zero. 
+
+		TESTING
+		Here is the result of the output
+		1 j585zhan@ubuntu1604-002:~/cs343/a1$ cat test2.in
+		2 ---------- 01234 abc
+		3 j585zhan@ubuntu1604-002:~/cs343/a1$ ./listing < test2.in
+		4 '---------- 01234 abc' : '---------- 01' no, extraneous characters '234 abc'
+
+		ANALYSIS
+		The result from running the program on "test2.in" shows that:
+		1)	program could handle '-' correctly.
+		2)	Leading zero will be detected and handled correctly.
+		3)	Extra part is outputed correctly. The extra part start just after
+			character '1' is read.
+		4)	Program accept passing the file from command line.
+
+	TEST 3:
+	-------
+		DATA DESCRIPTION
+		The third input file "test3.in" passed by command line argument as well.
+		It contains following contents:
+
+			1. dr-x-w-r-x 9876 abcd/
+
+		This is a simple test to test if program could verify the correct input.
+
+		TESTING
+		Here is the result of the output
+		1 j585zhan@ubuntu1604-002:~/cs343/a1$ cat test3.in
+		2 dr-x-w-r-x 9876 abcd/
+		3 j585zhan@ubuntu1604-002:~/cs343/a1$ ./listing < test3.in
+		4 'dr-x-w-r-x 9876 abcd/' : 'dr-x-w-r-x 9876 abcd/' yes
+
+		ANALYSIS
+		The result from running the program on "test3.in" shows that:
+		1)	The program could recognize well-formed input.
+		2)	Ending with single '/' is a valid file name.
+
+	TEST 4:
+	-------
+		DATA DESCRIPTION
+		The forth input file "test4.in" only contains an empty line.
+		This is a test to verify if program warn the empty line.
+
+		TESTING
+		Here is the result of the output
+		1 j585zhan@ubuntu1604-002:~/cs343/a1$ ./listing < test4.in
+		2 '' : Warning! Blank line.
+
+		ANALYSIS
+		The result from running the program on "test4.in" shows that:
+		1) The program is warning about the empty line
+
+	TEST 5:
+	-------
+		DATA DESCRIPTION
+		The fifth input file "test5.in" contains a short string that does
+		not match the requirement.
+
+			1. d--
+
+		This will verify if the program will handle the terminate correctly
+		if the end-of-line is reached. It should output 'no'
+
+		TESTING
+		Here is the result of the output
+		1 j585zhan@ubuntu1604-002:~/cs343/a1$ cat test5.in
+		1 d--
+		3 j585zhan@ubuntu1604-002:~/cs343/a1$ ./listing < test5.in
+		4 'd--' : 'd--' no
+
+		ANALYSIS
+		The result from running the program on "test4.in" shows that:
+		1)	The program will terminate right away if end of line is reached
+		2)	If no extra characters need to be parse, there will not print
+			extra characters after 'no'

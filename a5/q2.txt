@@ -1,0 +1,37 @@
+OUTPUT=NOOUTPUT LIMPL=EXT
+j585zhan@ubuntu1604-008:~/cs343/a5$ /usr/bin/time -f "%Uu %Ss %Er %Mkb" ./vote 100 10 10000 1003
+2.06u 0.04s 0:02.12r 32296kb
+j585zhan@ubuntu1604-008:~/cs343/a5$ /usr/bin/time -f "%Uu %Ss %Er %Mkb" ./vote 100 10 10000 1003 2
+17.33u 0.04s 0:08.70r 32512kb
+
+make OUTPUT=NOOUTPUT LIMPL=INT
+j585zhan@ubuntu1604-008:~/cs343/a5$ /usr/bin/time -f "%Uu %Ss %Er %Mkb" ./vote 100 10 10000 1003
+2.23u 0.03s 0:02.27r 32536kb
+j585zhan@ubuntu1604-008:~/cs343/a5$ /usr/bin/time -f "%Uu %Ss %Er %Mkb" ./vote 100 10 10000 1003 2
+19.24u 0.05s 0:09.66r 32416kb
+
+make OUTPUT=NOOUTPUT LIMPL=INTB
+j585zhan@ubuntu1604-008:~/cs343/a5$ /usr/bin/time -f "%Uu %Ss %Er %Mkb" ./vote 100 10 10000 1003
+2.31u 0.02s 0:02.39r 32528kb
+j585zhan@ubuntu1604-008:~/cs343/a5$ /usr/bin/time -f "%Uu %Ss %Er %Mkb" ./vote 100 10 10000 1003 2
+17.56u 0.09s 0:08.84r 32428kb
+
+make OUTPUT=NOOUTPUT LIMPL=AUTO
+j585zhan@ubuntu1604-008:~/cs343/a5$ /usr/bin/time -f "%Uu %Ss %Er %Mkb" ./vote 100 10 10000 1003
+2.35u 0.03s 0:02.40r 32368kb
+j585zhan@ubuntu1604-008:~/cs343/a5$ /usr/bin/time -f "%Uu %Ss %Er %Mkb" ./vote 100 10 10000 1003 2
+18.88u 0.04s 0:09.48r 32400kb
+
+make OUTPUT=NOOUTPUT LIMPL=TASK
+j585zhan@ubuntu1604-008:~/cs343/a5$ /usr/bin/time -f "%Uu %Ss %Er %Mkb" ./vote 100 10 10000 1003
+1.68u 0.02s 0:01.73r 32480kb
+j585zhan@ubuntu1604-008:~/cs343/a5$ /usr/bin/time -f "%Uu %Ss %Er %Mkb" ./vote 100 10 10000 1003 2
+24.57u 0.07s 0:12.34r 33564kb
+
+The performance is different by less than 1 seconds in user and real time
+between 1 processor outputs, task performs slightly better, followed by EXT
+(0.4 seconds slower in both user and real time), then INT INTB and AUTO (another
+0.2 seconds slower than EXT, performs similar).
+With kernel threads increases(to 2), all of three implementation performance significantly
+slower in the user time(15s for EXT, 17s for INT, 15s for INTB, 16s for AUTO, and 23s for TASK)
+and real time(6s for EXT, 7s for INT, 6s for INTB, 7s for AUTO and 10s for TASK)

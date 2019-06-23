@@ -1,0 +1,713 @@
+==============================================
+TEST DOCUMENTATION 
+- Yunxiang Chang (y56chang)
+- Jiaming Zhang (j585zhan)
+==============================================
+
++--------+-----------------+----------------------------------------------------+--------------------------------+
+| Test # | Type of Test    | Reason for Test                                    | Analysis of Test               |
++--------+-----------------+----------------------------------------------------+--------------------------------+
+| 1      | Invalid         | Testing if the program correctly outputs the usage | The program correctly outputs  |
+|        | command-line    | message or error message when command-line options | the usage message.             |
+|        | option.         | are invalid, so users can correct the options.     |                                |
+|        | Multiple tests  |                                                    |                                |
+|        | for invalid     |                                                    |                                |
+|        | options.        |                                                    |                                |
++--------+-----------------+----------------------------------------------------+--------------------------------+
+| 2      | Invalid config  | Since the numbers in the config files must be      | The program correctly outputs  |
+|        | file. Multiple  | positive, we should test to see if program outputs | the error messages indicating  |
+|        | tests for       | error messages when we supply 0 / negative values  | the configurations must be     |
+|        | invalid config  | for the configurations.                            | positive.                      |
+|        | files.          |                                                    |                                |
++--------+-----------------+----------------------------------------------------+--------------------------------+
+| 3      | Boundary case.  | Since the minimum value for each of the settings   | The program works with this    |
+|        | All values in   | in the config file is 1, we should test this       | setting and correctly outputs  |
+|        | config file set | boundary case to make sure the program works with  | the desired sequence of        |
+|        | to 1.           | the very basic settings.                           | actions each component         |
+|        |                 |                                                    | performs.                      |
++--------+-----------------+----------------------------------------------------+--------------------------------+
+| 4      | Near boundary   | We should test when there are multiple students,   | The program correctly          |
+|        | case. Multiple  | whether they are all distributed to the same (the  | distributed all students to    |
+|        | students, all   | only) vending machine, i.e. the name server        | the same machine.              |
+|        | else same as    | correctly distributes students when there are more |                                |
+|        | test 3.         | students than vending machines.                    |                                |
++--------+-----------------+----------------------------------------------------+--------------------------------+
+| 5      | Near boundary   | When the only student is created and vending       | The name server correctly      |
+|        | case. Multiple  | machines are just created, there is no stock in    | assigns new vending machines   |
+|        | vending         | any machine. So the buy request from the student   | to the student when no stock   |
+|        | machines, all   | should result in a change in vending machine. This | is available.                  |
+|        | else same as    | test tests whether the name server correctly       |                                |
+|        | test 3.         | assigns new vending machines to the student using  |                                |
+|        |                 | round-robin.                                       |                                |
++--------+-----------------+----------------------------------------------------+--------------------------------+
+| 6      | Special case.   | We should test the case where a soda costs more    | The student correctly caught   |
+|        | Expensive soda. | than the initial WatCard balance to see if the     | the exception and transfers    |
+|        |                 | student catches the exception and transfers to the | more money to watcard, and the |
+|        |                 | watcard is correctly done. Also we should check if | old balance is added to the    |
+|        |                 | the remaining balance is also transferred to the   | new transfer amount.           |
+|        |                 | new WatCard.                                       |                                |
++--------+-----------------+----------------------------------------------------+--------------------------------+
+| 7      | General Case.   | All command line options are optional, so we       | The program correctly executes |
+|        | Default         | should test the program behaviour when we do not   | with the default configuration |
+|        | Parameters.     | specify the options.                               | file soda.config.              |
++--------+-----------------+----------------------------------------------------+--------------------------------+
+| 8      | Special Case.   | Make sure that when groupoff delay is large, i.e.  | The program correctly handled  |
+|        | groupoff delay  | students cannot use giftcard, and hence giftcard   | this case and giftcard was     |
+|        | large.          | not deleted after use but at the end of program,   | deleted successfully.          |
+|        |                 | there is no memory leak.                           |                                |
++--------+-----------------+----------------------------------------------------+--------------------------------+
+
+Blank lines and lines starting with ~~~~~ are not in the actual input/output
+--------------------
+|    Test # 1      |
+--------------------
+~~~~~ COMMAND LINE1 ~~~~~
+~/cs343/WATCola/tests$ ../soda notafile
+
+~~~~~ OUTPUT1 ~~~~~
+Error: could not open input file "notafile"
+
+~~~~~ COMMAND LINE2 ~~~~~
+~/cs343/WATCola/tests$ ../soda file1 2000 file2
+
+~~~~~ OUTPUT2 ~~~~~
+Usage: ../soda [ config-file [ random-seed (> 0) ] ]
+
+~~~~~ COMMAND LINE3 ~~~~~
+~/cs343/WATCola/tests$ ../soda file1 -5
+
+~~~~~ OUTPUT3 ~~~~~
+Usage: ../soda [ config-file [ random-seed (> 0) ] ]
+
+--------------------
+|    Test # 2      |
+--------------------
+~~~~~ INPUT1 ~~~~~ 
+NumStudents in config file set to -5
+
+~~~~~ OUTPUT1 ~~~~~
+Error: file "invalid" parameter NumStudents value -5 must be positive.
+
+~~~~~ INPUT2 ~~~~~
+GroupoffDelay in config file set to 0
+
+~~~~~ OUTPUT2 ~~~~~
+Error: file "invalid" parameter GroupoffDelay value 0 must be positive.
+
+~~~~~ (Other inputs/outputs for this type of test are tested but not included in this documentation) 
+
+--------------------
+|    Test # 3      |
+--------------------
+~~~~~ INPUT ~~~~~
+SodaCost                1    # Manufacturer Suggested Retail Price (MSRP) per bottle
+NumStudents             1    # number of students to create
+MaxPurchases            1    # maximum number of bottles a student purchases
+NumVendingMachines      1    # number of vending machines
+MaxStockPerFlavour      1    # maximum number of bottles of each flavour in a vending machine
+MaxShippedPerFlavour    1    # maximum number of bottles of each flavour generated by the bottling
+                             #    plant per production run
+TimeBetweenShipments    1    # length of time between shipment pickup
+GroupoffDelay           1    # length of time between new initializing gift cards
+ParentalDelay           1    # length of time between new deposits of funds
+NumCouriers             1    # maximum number of couriers in the pool
+
+~~~~ OUTPUT ~~~~~
+Parent	Gropoff	WATOff	Names	Truck	Plant	Stud0	Mach0	Cour0
+*******	*******	*******	*******	*******	*******	*******	*******	*******
+S	S	S	S					S
+D0,2
+D0,1			R0		S	S0,1	S1
+D0,1		C0,5		S	G2
+D0,2						V0		t0,5
+	D1							L0
+D0,1	F	W	N0,0
+D0,1				P2
+				d0,2
+				U0,1
+D0,3				D0,0	P		r
+D0,3					G2
+D0,2							R
+D0,1						G0,0	B0,0
+D0,1						F
+D0,2
+D0,1
+D0,1
+D0,3				F
+D0,3					F
+D0,2
+D0,3							F
+D0,2
+D0,2			F
+D0,1
+D0,1
+D0,3								F
+D0,2		F
+D0,3
+D0,2
+F
+***********************
+
+--------------------
+|    Test # 4      |
+--------------------
+~~~~~ INPUT ~~~~~
+sodaCost                1    # Manufacturer Suggested Retail Price (MSRP) per bottle
+NumStudents             3    # number of students to create
+MaxPurchases            1    # maximum number of bottles a student purchases
+NumVendingMachines      1    # number of vending machines
+MaxStockPerFlavour      1    # maximum number of bottles of each flavour in a vending machine
+MaxShippedPerFlavour    1    # maximum number of bottles of each flavour generated by the bottling
+                             #    plant per production run
+TimeBetweenShipments    1    # length of time between shipment pickup
+GroupoffDelay           1    # length of time between new initializing gift cards
+ParentalDelay           1    # length of time between new deposits of funds
+NumCouriers             1    # maximum number of couriers in the pool
+
+~~~~~ OUTPUT ~~~~~
+Parent	Gropoff	WATOff	Names	Truck	Plant	Stud0	Stud1	Stud2	Mach0	Cour0
+*******	*******	*******	*******	*******	*******	*******	*******	*******	*******	*******
+S	S	S	S							S
+D1,1
+D2,2			R0		S	S1,1	S2,1	S1,1	S1
+D0,3		C0,5		S	G2
+D2,3						V0				t0,5
+D0,1		W	N0,0
+D1,2							V0
+D0,2		C1,5	N1,0							L0
+D0,2		W								t1,5
+D0,3								V0
+D1,3				P2
+				d0,2
+				U0,1
+		C2,5	N2,0	D0,0						L1
+										t2,5
+D2,1	D1	W			P				r	T2,5
+D2,1	D1				G1
+D1,1	D1								R
+D2,2	F						G2,0		B2,0
+				P1			F
+D0,1				d0,1	P
+D2,1					G0	V0
+D0,1			N0,0
+D1,2				U0,1
+D0,2				D0,0					r
+D2,1
+D0,3									R
+D0,2								G1,0	B1,0
+D0,1								F
+D2,3						V0
+D2,2			N0,0	P0
+D2,3					P
+D0,2					G3	V0
+D2,3			N0,0
+D1,2
+D1,3
+D2,1
+D2,1
+D1,3
+D1,2
+D0,3				P3
+				d0,3
+D1,3				D0,1	P				r
+D2,3					G1
+D0,1									R
+D2,3						G1,0			B1,0
+D1,1						F
+D2,2
+D2,1
+D0,3
+D1,2
+D1,2				F
+D0,2					F
+D0,2
+D1,1									F
+D0,2
+D2,1			F
+D0,1
+D0,3
+D0,2										F
+D1,1		F
+D0,2
+D2,3
+F
+***********************
+
+--------------------
+|    Test # 5      |
+--------------------
+~~~~~ INPUT ~~~~~
+SodaCost                1    # Manufacturer Suggested Retail Price (MSRP) per bottle
+NumStudents             1    # number of students to create
+MaxPurchases            1    # maximum number of bottles a student purchases
+NumVendingMachines      3    # number of vending machines
+MaxStockPerFlavour      1    # maximum number of bottles of each flavour in a vending machine
+MaxShippedPerFlavour    1    # maximum number of bottles of each flavour generated by the bottling
+                             #    plant per production run
+TimeBetweenShipments    1    # length of time between shipment pickup
+GroupoffDelay           1    # length of time between new initializing gift cards
+ParentalDelay           1    # length of time between new deposits of funds
+NumCouriers             1    # maximum number of couriers in the pool
+
+~~~~ OUTPUT ~~~~~
+Parent	Gropoff	WATOff	Names	Truck	Plant	Stud0	Mach0	Mach1	Mach2	Cour0
+*******	*******	*******	*******	*******	*******	*******	*******	*******	*******	*******
+S	S	S	S							S
+D0,2
+D0,2			R0				S1
+D0,2
+D0,2			R1					S1
+D0,3
+D0,3			R2		S	S2,1			S1
+D0,2		C0,5		S	G1
+D0,1						V0				t0,5
+	D1									T0,5
+D0,2	F	W	N0,0
+D0,1
+D0,2
+D0,1
+D0,3						V1
+D0,2			N0,1	P1		V2
+				d0,1
+				U0,2
+D0,2			N0,2	D0,0	P		r
+D0,3					G0
+D0,3							R
+D0,3
+D0,3				P0
+D0,2					P
+D0,1					G2
+D0,3
+D0,1
+D0,1						V0
+D0,2			N0,0			V1
+D0,2			N0,1
+D0,2
+D0,3
+D0,2				P2
+				d1,2
+				U1,1
+D0,3				D1,0	P			r
+D0,3					G2
+D0,1								R
+D0,3
+D0,3				P2		V2
+				d2,2
+				U2,1
+D0,3			N0,2	D2,0	P				r
+D0,1					G2
+D0,2									R
+D0,3
+D0,2						V0
+D0,2			N0,0
+D0,2
+D0,1				P2
+				d0,2
+				U0,1
+D0,2				D0,1	P		r
+D0,1				d1,1	G1
+				U1,1
+D0,2				D1,1			R	r
+D0,2				d2,1
+				U2,1
+D0,1				D2,1				R	r
+D0,3
+D0,2						a2,1			R
+D0,1
+D0,1
+D0,2
+D0,3
+D0,1
+D0,3
+D0,2
+D0,1
+D0,2				P1
+				d0,1
+				U0,1
+D0,3				D0,1	P		r
+D0,3				d1,1	G3
+D0,3				D1,0			R	r
+D0,3						G2,0	B2,0
+D0,3						F		R
+D0,2
+D0,3
+D0,3
+D0,2
+D0,1
+D0,1
+D0,3				F
+D0,3					F
+D0,2
+D0,1							F
+D0,3
+D0,3								F
+D0,3
+D0,2									F
+D0,2
+D0,1			F
+D0,2
+D0,2
+D0,3										F
+D0,1		F
+D0,3
+D0,2
+F
+***********************
+
+--------------------
+|    Test # 6      |
+--------------------
+~~~~~ INPUT ~~~~~
+SodaCost                6    # Manufacturer Suggested Retail Price (MSRP) per bottle
+NumStudents             1    # number of students to create
+MaxPurchases            5    # maximum number of bottles a student purchases
+NumVendingMachines      1    # number of vending machines
+MaxStockPerFlavour      1    # maximum number of bottles of each flavour in a vending machine
+MaxShippedPerFlavour    1    # maximum number of bottles of each flavour generated by the bottling
+                             #    plant per production run
+TimeBetweenShipments    1    # length of time between shipment pickup
+GroupoffDelay           1    # length of time between new initializing gift cards
+ParentalDelay           1    # length of time between new deposits of funds
+NumCouriers             1    # maximum number of couriers in the pool
+
+~~~~ OUTPUT ~~~~~
+Parent	Gropoff	WATOff	Names	Truck	Plant	Stud0	Mach0	Cour0
+*******	*******	*******	*******	*******	*******	*******	*******	*******
+S	S	S	S					S
+D0,3
+D0,2			R0		S	S2,5	S6
+D0,2		C0,5		S	G2
+D0,1						V0		t0,5
+	D6							L0
+D0,3	F	W	N0,0
+D0,1				P2
+				d0,2
+				U0,1
+D0,2				D0,0	P		r
+D0,2					G3
+D0,2							R
+D0,2				P3
+				d0,3
+D0,1				D0,2	P		r
+D0,2					G1
+D0,2							R
+D0,3						G2,0	B2,0
+D0,3
+D0,1
+D0,1
+D0,1
+D0,3
+D0,2				P1
+				d0,1
+D0,3				D0,0	P		r
+D0,3					G0
+D0,2							R
+D0,1						L
+D0,1		C0,5		P0
+D0,1								t0,5
+D0,3		W			P			T0,5
+D0,2		T0,11			G0
+D0,2								t0,16
+D0,1		W						T0,16
+D0,2				P0
+D0,2					P
+D0,1					G1
+D0,3				P1
+				d0,1
+D0,2				D0,1	P		r
+D0,2					G3
+D0,3							R
+D0,2						B2,10	B2,0
+D0,1
+D0,2
+D0,2
+D0,1
+D0,2				P3
+				d0,3
+D0,2				D0,2	P		r
+D0,2					G1
+D0,1				P1			R
+				d0,1
+D0,3				D0,1	P		r
+D0,3					G2
+D0,2							R
+D0,1						A2,10
+D0,3
+D0,3
+D0,1				P2
+				d0,2
+D0,1				D0,2	P		r
+D0,2					G3
+D0,3							R
+D0,3						B2,4	B2,0
+D0,1
+D0,2
+D0,3
+D0,1				P3
+				d0,3
+D0,2				D0,2	P		r
+D0,1					G1
+D0,1				P1			R
+D0,2				d0,1	P
+D0,1		T0,11			G1
+D0,1				D0,1				t0,15
+D0,3		W					r	T0,15
+D0,1
+D0,1							R
+D0,2						B2,9	B2,0
+D0,3
+D0,3				P1
+				d0,1
+D0,3				D0,0	P		r
+D0,3					G1
+D0,1							R
+D0,1
+D0,1
+D0,3						B2,3	B2,0
+D0,3						F
+D0,2
+D0,2
+D0,2
+D0,3
+D0,2
+D0,3				F
+D0,2					F
+D0,2
+D0,3							F
+D0,3
+D0,3			F
+D0,3
+D0,2
+D0,2								F
+D0,2		F
+D0,3
+D0,1
+F
+***********************
+
+--------------------
+|    Test # 7      |
+--------------------
+~~~~~ COMMAND LINE ~~~~~
+~/cs343/WATCola/tests$ ../soda
+
+~~~~~ INPUT ~~~~~
+SodaCost                2    # Manufacturer Suggested Retail Price (MSRP) per bottle
+NumStudents             2    # number of students to create
+MaxPurchases            8    # maximum number of bottles a student purchases
+NumVendingMachines      3    # number of vending machines
+MaxStockPerFlavour      5    # maximum number of bottles of each flavour in a vending machine
+MaxShippedPerFlavour    3    # maximum number of bottles of each flavour generated by the bottling
+                             #    plant per production run
+TimeBetweenShipments    3    # length of time between shipment pickup
+GroupoffDelay           10   # length of time between new initializing gift cards
+ParentalDelay           2    # length of time between new deposits of funds
+NumCouriers             1    # maximum number of couriers in the pool
+
+~~~~ OUTPUT ~~~~~
+Parent	Gropoff	WATOff	Names	Truck	Plant	Stud0	Stud1	Mach0	Mach1	Mach2	Cour0
+*******	*******	*******	*******	*******	*******	*******	*******	*******	*******	*******	*******
+S	S	S	S								S
+D0,1			R0					S2
+D1,1			R1						S2
+D1,3		C0,5	R2	S	S	S2,4	S2,3			S2
+D0,3		W	N0,0		G3	V0					t0,5
+D1,1				P3			V1
+				d0,3
+				U0,12
+D0,3		C1,5	N1,1	D0,0	P			r			T0,5
+											t1,5
+D0,2		W			G4			R			T1,5
+D0,1			N0,1			V1
+D0,1
+D1,1				P4
+				d1,4
+				U1,11
+D0,1	D2			D1,0	P				r
+D1,3					G1				R
+D0,3			N0,2			V2	B2,3		B2,0
+D0,1
+D1,1				P1
+				d2,1
+				U2,14
+	D2			D2,0
+D1,2	F				P					r
+D0,3			N1,2				V2			R
+D1,3			N1,0		G1	V0	V0
+D1,1			N0,0
+D1,3
+D0,1				P1
+				d0,1
+				U0,11
+D0,3				D0,0	P			r
+D1,3			N1,1		G3		V1	R
+D1,2			N0,1			V1	V2
+D0,3			N1,2
+D1,1				P3
+				d1,3
+				U1,9
+D1,2				D1,0	P		V0		r
+D1,1			N1,0						R
+				P3	G3	G2,0			B2,0
+				d2,3
+				U2,11
+D0,1				D2,0	P					r
+D0,1			N1,1		G4		V1			R
+D0,1			N0,2			V2
+D1,3
+D1,1
+D0,1				P4		V0
+				d0,4
+				U0,7
+D1,3			N0,0	D0,0	P		V2	r
+D0,2			N1,2		G5	V1		R
+D1,3			N0,1				V0
+D0,3			N1,0
+D0,3
+D0,2				P5
+				d1,5
+				U1,5
+D1,2				D1,0	P		V1		r
+D0,2			N1,1		G7				R
+D1,3						B2,3			B2,1
+D0,3						B2,1			B2,0
+D0,2		T0,7
+D1,3											t0,8
+				P7							T0,8
+				d2,7
+				U2,4
+D0,2		W	N1,2	D2,0	P	V2	V2			r
+D0,3			N0,2		G4					R
+						B2,6				B2,2
+				P4		F
+				d0,4
+				U0,3
+D0,1				D0,0	P		G2,0	r		B2,1
+D0,3					G5			R
+D1,1
+D0,2							B2,1			B2,0
+				P5			F
+				d1,5
+				U1,4
+D0,3				D1,2	P				r
+				d2,2
+				U2,6
+D1,1				D2,1					R	r
+				d0,1
+				U0,2
+D0,2				D0,0				r		R
+D0,2								R
+D0,2
+D1,2
+D0,3				F
+D1,3					F
+D0,1								F
+D0,2									F
+D0,2										F
+D0,2			F
+D1,1											F
+D1,2		F
+D1,2
+F
+***********************
+
+--------------------
+|    Test # 8      |
+--------------------
+~~~~~ INPUT ~~~~~
+SodaCost                1    # Manufacturer Suggested Retail Price (MSRP) per bottle
+NumStudents             1    # number of students to create
+MaxPurchases            1    # maximum number of bottles a student purchases
+NumVendingMachines      1    # number of vending machines
+MaxStockPerFlavour      1    # maximum number of bottles of each flavour in a vending machine
+MaxShippedPerFlavour    1    # maximum number of bottles of each flavour generated by the bottling
+                             #    plant per production run
+TimeBetweenShipments    1    # length of time between shipment pickup
+GroupoffDelay           50    # length of time between new initializing gift cards
+ParentalDelay           1    # length of time between new deposits of funds
+NumCouriers             1    # maximum number of couriers in the pool
+
+~~~~ OUTPUT ~~~~~
+Parent	Gropoff	WATOff	Names	Truck	Plant	Stud0	Mach0	Cour0
+*******	*******	*******	*******	*******	*******	*******	*******	*******
+S	S	S	S					S
+D0,2
+D0,3			R0		S	S2,1	S1
+D0,3		C0,5		S	G2
+D0,1						V0		t0,5
+D0,2		W	N0,0					L0
+D0,1
+D0,1
+D0,3				P2
+				d0,2
+				U0,1
+D0,2				D0,0	P		r
+D0,3					G1
+D0,2							R
+D0,3
+D0,1				P1		L
+				d0,1
+D0,3		C0,5		D0,0	P		r
+D0,2								t0,5
+D0,1		W			G2	L	R	L0
+D0,2		C0,5
+D0,3								t0,5
+D0,3		W		P2		B2,4	B2,0	T0,5
+D0,3				d0,2	P
+D0,2				U0,1
+D0,2				D0,2	G2		r
+D0,2
+D0,1							R
+D0,1
+D0,1
+D0,3
+D0,3
+D0,1
+D0,1				P2
+				d0,2
+				U0,1
+D0,1				D0,2	P		r
+D0,1					G2
+D0,2							R
+D0,3
+D0,3
+D0,1
+D0,3
+D0,3
+D0,1				P2
+				d0,2
+D0,3				D0,1	P		r
+D0,3					G2
+D0,1							R
+D0,3
+D0,1
+D0,3
+D0,3
+D0,3				P2
+				d0,2
+D0,1				D0,2	P		r
+D0,3					G3
+D0,3							R
+D0,3
+D0,3
+D0,3	D1
+D0,1	F					F
+D0,1
+D0,2
+D0,2
+D0,3
+D0,2
+D0,3				F
+D0,3					F
+D0,2
+D0,2							F
+D0,3
+D0,2			F
+D0,1
+D0,1
+D0,3								F
+D0,2		F
+D0,3
+D0,3
+F
+***********************

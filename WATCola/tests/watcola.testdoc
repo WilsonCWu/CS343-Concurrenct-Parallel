@@ -1,0 +1,63 @@
+TEST DOCUMENTATION 
+- Yunxiang Chang (y56chang)
+- Jiaming Zhang (j585zhan)
+==============================================
+
+Lines starting with ~~~~~ are not in the actual input/output
+--------------------
+|    Test # 1      |
+--------------------
+~~~~~ INPUT1 ~~~~~
+~/cs343/WATCola/tests$ ../soda notafile
+~~~~~ OUTPUT1 ~~~~~
+Error: could not open input file "notafile"
+
+~~~~~ INPUT2 ~~~~~
+~/cs343/WATCola/tests$ ../soda file1 2000 file2
+~~~~ OUTPUT2 ~~~~~
+Usage: ../soda [ config-file [ random-seed (> 0) ] ]
+
+~~~~ INPUT3 ~~~~~
+~/cs343/WATCola/tests$ ../soda file1 -5
+~~~ OUTPUT3 ~~~~~
+Usage: ../soda [ config-file [ random-seed (> 0) ] ]
+
+--------------------
+|    Test # 2      |
+--------------------
+~~~~~ INPUT1 ~~~~~ 
+NumStudents in config file set to -5
+~~~~~ OUTPUT1 ~~~~~
+Error: file "invalid" parameter NumStudents value -5 must be positive.
+
+~~~~~ INPUT2 ~~~~~
+GroupoffDelay in config file set to 0
+~~~~~ OUTPUT2 ~~~~~
+Error: file "invalid" parameter GroupoffDelay value 0 must be positive.
+
+~~~~~ (Other inputs/outputs for this type of test are tested but not included in this documentation) 
+
+--------------------
+|    Test # 3      |
+--------------------
+
+--------------------
+|    Test # 4      |
+--------------------
+
+--------------------
+|    Test # 5      |
+--------------------
+
+--------------------
+|    Test # 6      |
+--------------------
+
+--------------------
+|    Test # 7      |
+--------------------
+
+--------------------
+|    Test # 8      |
+--------------------
+

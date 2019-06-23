@@ -45,7 +45,7 @@ TallyVotes::Tour TallyVotes::vote(unsigned int id, Ballot ballot) {
 		countStatue = 0;
 		countPicture = 0;
 		countGiftshop = 0;
-	} else {
+	} else {									// need to weak other voters up
 		cast.signalBlock();
 	}
 	return result;
@@ -53,6 +53,6 @@ TallyVotes::Tour TallyVotes::vote(unsigned int id, Ballot ballot) {
 
 void TallyVotes::done() {
 	left += 1;
-	if (voters - left < group) cast.signal();
+	if (voters - left < group) cast.signal();	// if not enough voters, weak them up
 }
 
